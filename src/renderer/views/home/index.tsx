@@ -1,5 +1,5 @@
 import icon from '../../../../assets/icon.svg';
-import './App.css';
+import './index.less';
 
 function Hello() {
   return (

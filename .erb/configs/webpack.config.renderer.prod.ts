@@ -39,7 +39,7 @@ const configuration: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.s?(a|c)ss$/,
+        test: /\.l?(c|e)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -50,14 +50,34 @@ const configuration: webpack.Configuration = {
               importLoaders: 1,
             },
           },
-          'sass-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              lessOptions: {
+                math: 'always',
+                javascriptEnabled: true,
+              },
+            },
+          },
         ],
-        include: /\.module\.s?(c|a)ss$/,
+        include: /\.module\.l?(c|e)ss$/,
       },
       {
-        test: /\.s?(a|c)ss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-        exclude: /\.module\.s?(c|a)ss$/,
+        test: /\.l?(c|e)ss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              lessOptions: {
+                math: 'always',
+                javascriptEnabled: true,
+              },
+            },
+          },
+        ],
+        exclude: /\.module\.l?(c|e)ss$/,
       },
       // Fonts
       {
