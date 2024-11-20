@@ -55,6 +55,7 @@
     "extends browserslist-config-erb"
   ],
   "prettier": {
+    "endOfLine": "auto",
     "singleQuote": true,
     "overrides": [
       {
@@ -107,7 +108,9 @@
     "electron-updater": "^6.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0"
+    "react-router-dom": "^6.16.0",
+    "antd": "^5.11.1",
+    "@ant-design/icons": "^5.2.6"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
