@@ -6,7 +6,6 @@ import './index.less';
 const { TextArea } = Input;
 
 const App: React.FC = () => {
-
   const [form] = Form.useForm();
   const [output, setOutput] = useState('');
 
@@ -27,12 +26,20 @@ const App: React.FC = () => {
             <div className="config-section">
               <Form.Item label="目录或文件">
                 <Radio.Group>
-                  <Radio value="directory"><FolderOutlined /> 目录</Radio>
-                  <Radio value="file"><FileOutlined /> 文件</Radio>
+                  <Radio value="directory">
+                    <FolderOutlined /> 目录
+                  </Radio>
+                  <Radio value="file">
+                    <FileOutlined /> 文件
+                  </Radio>
                 </Radio.Group>
               </Form.Item>
 
-              <Space direction="vertical" style={{ width: '100%' }} size="large">
+              <Space
+                direction="vertical"
+                style={{ width: '100%' }}
+                size="large"
+              >
                 <Form.Item label="选择目录">
                   <Button>点击打开选择目录</Button>
                 </Form.Item>
