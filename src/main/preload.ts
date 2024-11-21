@@ -24,6 +24,15 @@ const electronHandler = {
   },
 };
 
+const electronAPIHandler = {
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  generate: (options: { prompt: string; content: string; model: string }) =>
+    ipcRenderer.invoke('llm:generate', options),
+};
+
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
+contextBridge.exposeInMainWorld('electronAPI', electronAPIHandler);
+
 export type ElectronHandler = typeof electronHandler;
+export type ElectronAPIHandler = typeof electronAPIHandler;
