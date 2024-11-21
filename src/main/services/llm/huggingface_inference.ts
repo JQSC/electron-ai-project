@@ -25,14 +25,16 @@ export async function llmGenerate(options: {
       { role: 'user', content },
     ],
     max_tokens: 5000,
-    fetch_options: {
-      agent:
-        process.env.HTTP_PROXY || process.env.http_proxy
-          ? new HttpsProxyAgent(
-              process.env.HTTP_PROXY || process.env.http_proxy || '',
-            )
-          : undefined,
-    },
+    timeout: 10000,
+    signal: AbortSignal.timeout(5000),
+    // fetch_options: {
+    //   agent:
+    //     process.env.HTTP_PROXY || process.env.http_proxy
+    //       ? new HttpsProxyAgent(
+    //           process.env.HTTP_PROXY || process.env.http_proxy || '',
+    //         )
+    //       : undefined,
+    // },
   });
 
   let out = '';

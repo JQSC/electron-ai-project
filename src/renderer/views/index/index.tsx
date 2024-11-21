@@ -53,6 +53,8 @@ const App: React.FC = () => {
         onFinish={onFinish}
         layout="inline"
         initialValues={{
+          prompt: '请将以下代码转换为ts代码',
+          path: '123',
           apiKey: 'HUGGINGFACE_API_KEY',
           model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
           override: '0',
