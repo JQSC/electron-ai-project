@@ -14,6 +14,9 @@ module.exports = {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
     'react/function-component-definition': 'off',
+    'no-await-in-loop': 'off',
+    'no-restricted-syntax': 'off',
+    'no-continue': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

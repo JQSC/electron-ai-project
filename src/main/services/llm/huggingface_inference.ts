@@ -17,14 +17,12 @@ export async function llmGenerate(options: {
 }) {
   const { prompt, content, model } = options;
 
-  console.log('-------', prompt, content, model);
-
   const stream = client.chatCompletionStream(
     {
       model,
       messages: [
         { role: 'system', content: prompt },
-        // { role: 'user', content },
+        { role: 'user', content },
       ],
       max_tokens: 5000,
       timeout: 10000,

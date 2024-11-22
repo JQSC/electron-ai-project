@@ -1,6 +1,7 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { LLMGenerateOptions } from '../types/ipc';
 
 export type Channels = 'ipc-example';
 
@@ -26,7 +27,7 @@ const electronHandler = {
 
 const electronAPIHandler = {
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
-  generate: (options: { prompt: string; content: string; model: string }) =>
+  generate: (options: LLMGenerateOptions) =>
     ipcRenderer.invoke('llm:generate', options),
 };
 
