@@ -1,6 +1,7 @@
 import { HfInference } from '@huggingface/inference';
 import { dialog } from 'electron';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import fetch from 'node-fetch';
 
 const { HUGGINGFACE_API_KEY } = process.env;
 if (!HUGGINGFACE_API_KEY) {
@@ -18,24 +19,36 @@ export async function llmGenerate(options: {
 
   console.log('-------', prompt, content, model);
 
-  const stream = client.chatCompletionStream({
-    model,
-    messages: [
-      { role: 'system', content: prompt },
-      { role: 'user', content },
-    ],
-    max_tokens: 5000,
-    timeout: 10000,
-    signal: AbortSignal.timeout(5000),
-    // fetch_options: {
-    //   agent:
-    //     process.env.HTTP_PROXY || process.env.http_proxy
-    //       ? new HttpsProxyAgent(
-    //           process.env.HTTP_PROXY || process.env.http_proxy || '',
-    //         )
-    //       : undefined,
-    // },
-  });
+  const stream = client.chatCompletionStream(
+    {
+      model,
+      messages: [
+        { role: 'system', content: prompt },
+        // { role: 'user', content },
+      ],
+      max_tokens: 5000,
+      timeout: 10000,
+    },
+    {
+      // @ts-ignore
+      fetch: async (input: any, init?: any) => {
+        const response = await fetch(input, {
+          ...init,
+          agent: new HttpsProxyAgent(
+            process.env.HTTP_PROXY || process.env.http_proxy || '',
+          ),
+        });
+        // 将 response 转换为 web 标准的 Response 对象
+        // @ts-ignore
+        const res = new Response(response.body, {
+          headers: response.headers,
+          status: response.status,
+          statusText: response.statusText,
+        });
+        return res;
+      },
+    },
+  );
 
   let out = '';
   try {
@@ -44,7 +57,6 @@ export async function llmGenerate(options: {
       if (chunk.choices && chunk.choices.length > 0) {
         const newContent = chunk.choices[0].delta.content;
         out += newContent;
-        console.log(newContent);
       }
     }
     return out;

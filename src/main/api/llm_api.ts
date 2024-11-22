@@ -9,7 +9,7 @@ const handleLLMGenerate = async (
     model: string;
   },
 ) => {
-  const res = await services.requestGenerate(options);
+  const res = await services.llmGenerate(options);
   return res;
 };
 
