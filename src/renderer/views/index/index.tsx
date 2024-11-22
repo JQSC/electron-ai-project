@@ -32,17 +32,15 @@ const App: React.FC = () => {
       sourcePath,
       targetPath,
       override,
-      exclude,
-      fileExtensions,
+      excludeDirs,
+      includeExts,
     } = values;
     // 校验
     if (!sourcePath) {
       message.error('请选择路径');
       return;
     }
-    // setOutput(JSON.stringify(values, null, 2));
 
-    console.log('sourcePath', sourcePath);
     setLoading(true);
     const content = await window.electronAPI.generate({
       prompt,
@@ -50,8 +48,8 @@ const App: React.FC = () => {
       sourcePath,
       targetPath,
       isOverride: override === '0',
-      exclude,
-      fileExtensions,
+      excludeDirs,
+      includeExts,
     } as LLMGenerateOptions);
 
     setOutput(content);
@@ -89,7 +87,7 @@ const App: React.FC = () => {
           apiKey: 'HUGGINGFACE_API_KEY',
           model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
           override: '0',
-          fileExtensions: ['tsx', 'jsx'],
+          includeExts: ['tsx', 'jsx'],
         }}
       >
         <div className="content">
@@ -148,11 +146,11 @@ const App: React.FC = () => {
                   </Radio.Group>
                 </Form.Item>
 
-                <Form.Item label="排除目录" name="exclude">
+                <Form.Item label="排除目录" name="excludeDirs">
                   <Input placeholder="请输入要排除的目录名称" />
                 </Form.Item>
 
-                <Form.Item label="文件后缀" name="fileExtensions">
+                <Form.Item label="文件后缀" name="includeExts">
                   <Select
                     mode="multiple"
                     placeholder="请选择文件扩展名"
