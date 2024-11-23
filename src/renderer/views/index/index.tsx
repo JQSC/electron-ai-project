@@ -9,13 +9,17 @@ import {
   Space,
   Tooltip,
   message,
+  Tag,
 } from 'antd';
 import {
   InfoCircleOutlined,
   FileOutlined,
   FolderOutlined,
+  YoutubeOutlined,
+  FacebookOutlined,
 } from '@ant-design/icons';
 import { LLMGenerateOptions } from '../../../types/ipc';
+import { COMMENT_PROMPT, DEPENDENCY_PROMPT } from '../../constants/masks';
 import './index.less';
 
 const { TextArea } = Input;
@@ -74,6 +78,10 @@ const App: React.FC = () => {
     }
   };
 
+  const handleClickMask = (mask: string) => {
+    form.setFieldValue('prompt', mask);
+  };
+
   return (
     <div className="container">
       <Form
@@ -93,6 +101,26 @@ const App: React.FC = () => {
         <div className="content">
           <div className="section">
             <div className="main-textarea-wrapper">
+              <div className="prompt-tag-wrapper">
+                <Form.Item label="面具">
+                  <div className="prompt-tag-list">
+                    <Button
+                      type="dashed"
+                      size="small"
+                      onClick={() => handleClickMask(COMMENT_PROMPT)}
+                    >
+                      注释
+                    </Button>
+                    <Button
+                      type="dashed"
+                      size="small"
+                      onClick={() => handleClickMask(DEPENDENCY_PROMPT)}
+                    >
+                      调整依赖顺序
+                    </Button>
+                  </div>
+                </Form.Item>
+              </div>
               <Form.Item name="prompt" style={{ marginRight: 0 }}>
                 <TextArea
                   rows={10}
