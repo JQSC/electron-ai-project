@@ -103,9 +103,11 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@ant-design/pro-chat": "^1.15.3",
     "@electron/notarize": "^2.3.2",
     "@huggingface/inference": "^2.8.1",
-    "antd": "^5.11.1",
+    "antd": "^5.22.2",
+    "antd-style": "^3.7.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
