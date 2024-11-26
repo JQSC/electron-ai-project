@@ -11,7 +11,7 @@ if (!HUGGINGFACE_API_KEY) {
 const client = new HfInference(HUGGINGFACE_API_KEY);
 // 根据传入的文本，调用大模型处理返回结果
 export async function llmGenerate(options: {
-  prompt: string;
+  prompt?: string;
   content: string;
   model: string;
 }) {
@@ -21,7 +21,7 @@ export async function llmGenerate(options: {
     {
       model,
       messages: [
-        { role: 'system', content: prompt },
+        { role: 'system', content: prompt || '你是一个AI助手' },
         { role: 'user', content },
       ],
       max_tokens: 5000,
@@ -36,6 +36,7 @@ export async function llmGenerate(options: {
             process.env.HTTP_PROXY || process.env.http_proxy || '',
           ),
         });
+
         // 将 response 转换为 web 标准的 Response 对象
         // @ts-ignore
         const res = new Response(response.body, {
@@ -53,6 +54,10 @@ export async function llmGenerate(options: {
     // eslint-disable-next-line no-restricted-syntax
     for await (const chunk of stream) {
       if (chunk.choices && chunk.choices.length > 0) {
+        console.log(
+          'chunk------------------------------',
+          chunk.choices[0].delta,
+        );
         const newContent = chunk.choices[0].delta.content;
         out += newContent;
       }

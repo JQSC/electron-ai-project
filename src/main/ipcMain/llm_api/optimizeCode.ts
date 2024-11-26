@@ -1,25 +1,7 @@
-import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
-import { LLMGenerateOptions } from '../../types/ipc';
-import services from '../services';
+import { LLMGenerateOptions } from '../../../types/ipc';
 
-const llmGenerate = async ({
-  prompt,
-  model,
-  content,
-}: {
-  prompt: string;
-  model: string;
-  content: string;
-}) => {
-  const text = await services.llmGenerate({
-    prompt,
-    model,
-    content,
-  });
-  return text;
-};
 /**
  * 写入结果到文件
  * @param {string} content - 要写入的内容
@@ -56,8 +38,12 @@ async function walkDir(dir: string) {
  * @param {string[]} includeDirs - 包含的文件后缀
  * @param {string[]} excludeDirs - 排除的目录
  */
-async function handleLLMGenerate(
-  event: IpcMainInvokeEvent,
+async function optimizeCode(
+  llmGenerate: (options: {
+    prompt: string;
+    model: string;
+    content: string;
+  }) => Promise<string>,
   options: LLMGenerateOptions,
 ) {
   const {
@@ -67,16 +53,19 @@ async function handleLLMGenerate(
     targetPath,
     isOverride = true,
     includeExts = [],
-    excludeDirs = [],
+    excludeDirs = [] as string[],
   } = options;
   try {
+    if (!sourcePath) {
+      throw new Error('sourcePath is required');
+    }
     const stats = await fs.stat(sourcePath);
 
     // 判断是否是目录
     if (!stats.isDirectory()) {
       const content = await fs.readFile(sourcePath, 'utf8');
       const resContent = await llmGenerate({
-        prompt,
+        prompt: prompt || '你是一个AI助手',
         model,
         content,
       });
@@ -88,6 +77,7 @@ async function handleLLMGenerate(
     // 遍历所有文件
     for await (const filePath of walkDir(sourcePath)) {
       // 检查是否在排除目录中
+      // @ts-ignore
       if (excludeDirs.some((excluded: string) => filePath.includes(excluded))) {
         continue;
       }
@@ -100,7 +90,7 @@ async function handleLLMGenerate(
         try {
           const content = await fs.readFile(filePath, 'utf8');
           const resContent = await llmGenerate({
-            prompt,
+            prompt: prompt || '你是一个AI助手',
             model,
             content,
           });
@@ -120,4 +110,4 @@ async function handleLLMGenerate(
   }
 }
 
-ipcMain.handle('llm:generate', handleLLMGenerate);
+export default optimizeCode;

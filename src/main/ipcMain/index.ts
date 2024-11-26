@@ -1,2 +1,2 @@
-import './llm_api';
+import './llm_api/index';
 import './electron_api';

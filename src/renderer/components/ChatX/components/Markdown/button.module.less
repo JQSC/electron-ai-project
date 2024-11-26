@@ -1,0 +1,82 @@
+.icon-button {
+  background-color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  user-select: none;
+  outline: none;
+  border: none;
+  color: #000;
+
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &.primary {
+    background-color: rgb(29, 147, 171);
+    color: white;
+
+    path {
+      fill: white !important;
+    }
+  }
+
+  &.danger {
+    color: rgba(255, 0, 0, 0.8);
+    border-color: rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 0, 0, 0.05);
+
+    &:hover {
+      border-color: red;
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+
+    path {
+      fill: red !important;
+    }
+  }
+
+  &:hover,
+  &:focus {
+    border-color: rgb(29, 147, 171);
+  }
+}
+
+.shadow {
+  box-shadow: 0px 2px 4px 0px rgb(0, 0, 0, 0.05);
+}
+
+.border {
+  border: 1px solid rgb(222, 222, 222);
+}
+
+.icon-button-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .icon-button {
+    padding: 16px;
+  }
+}
+
+.icon-button-text {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:not(:first-child) {
+    margin-left: 5px;
+  }
+}

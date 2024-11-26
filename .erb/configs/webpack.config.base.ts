@@ -47,6 +47,15 @@ const configuration: webpack.Configuration = {
     modules: [webpackPaths.srcPath, 'node_modules'],
     // There is no need to add aliases here, the paths in tsconfig get mirrored
     plugins: [new TsconfigPathsPlugins()],
+    alias: {
+      '@types': '../../src/types',
+      '@components': '../../src/renderer/components',
+      '@views': '../../src/renderer/views',
+      '@static': '../../src/renderer/static',
+      '@common': '../../src/renderer/common',
+      '@router': '../../src/renderer/router',
+      '@hooks': '../../src/renderer/hooks',
+    },
   },
 
   plugins: [
