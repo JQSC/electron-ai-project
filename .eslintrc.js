@@ -18,6 +18,7 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'no-continue': 'off',
     'import/prefer-default-export': 'off',
+    'no-case-declarations': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,
