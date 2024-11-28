@@ -5,8 +5,8 @@ import SettingDirModal from '@components/SettingDirModal';
 import { TagType } from '../../../../../types/chat';
 import styles from './index.module.less';
 
-export default function ChatCommandTags() {
-  const [overrideVisible, setOverrideVisible] = useState(false);
+export default function ChatCommandTags({ onChange }) {
+  const [visible, setVisible] = useState(false);
   const [tags, setTags] = useState<
     { type: TagType; fileName: string; filePath: string }[]
   >([]);
@@ -20,21 +20,15 @@ export default function ChatCommandTags() {
     switch (tagName) {
       // 打开配置弹窗
       case TagType.FOLDERS:
-        setOverrideVisible(true);
-        // tag.filePath = await window.electronAPI.openFile();
-        // if (tag.filePath) {
-        //   // 提取文件路径中的文件或文件夹名称
-        //   tag.fileName = tag.filePath.split('/').pop() || tag.fileName;
-        //   setTags([...tags, tag]);
-        //   setContent('');
-        // }
+        setVisible(true);
         break;
       case TagType.FILES:
         tag.filePath = await window.electronAPI.openFile();
         if (tag.filePath) {
           tag.fileName = tag.filePath.split('/').pop() || tag.fileName;
-          setTags([...tags, tag]);
-          // setContent('');
+          const newTags = [...tags, tag];
+          setTags(newTags);
+          onChange(newTags);
         }
         break;
       default:
@@ -43,7 +37,7 @@ export default function ChatCommandTags() {
   };
 
   const handleCancel = () => {
-    setOverrideVisible(false);
+    setVisible(false);
   };
 
   const handleOk = (values: any) => {
@@ -62,9 +56,10 @@ export default function ChatCommandTags() {
         includeExts: includeExts || [],
       },
     };
-    setTags([...tags, tag]);
-    // setContent('');
-    setOverrideVisible(false);
+    const newTags = [...tags, tag];
+    setTags(newTags);
+    onChange(newTags);
+    setVisible(false);
   };
 
   const menuItems = [
@@ -98,18 +93,20 @@ export default function ChatCommandTags() {
       <Popover content={tagContent} title="Add Tag" trigger="hover">
         <Button type="text" icon={<PlusOutlined />} />
       </Popover>
-      <div className={styles.tags}>
-        {tags.map((tag) => (
-          <Dropdown.Button
-            menu={{ items: menuItems, onClick: onMenuClick }}
-            key={tag.fileName}
-          >
-            {tag.fileName}
-          </Dropdown.Button>
-        ))}
-      </div>
+      {tags.length > 0 && (
+        <div className={styles.tags}>
+          {tags.map((tag, index) => (
+            <Dropdown.Button
+              menu={{ items: menuItems, onClick: onMenuClick }}
+              key={index}
+            >
+              {tag.fileName}
+            </Dropdown.Button>
+          ))}
+        </div>
+      )}
       <SettingDirModal
-        visible={overrideVisible}
+        visible={visible}
         onCancel={handleCancel}
         onOk={handleOk}
       />

@@ -19,6 +19,7 @@ module.exports = {
     'no-continue': 'off',
     'import/prefer-default-export': 'off',
     'no-case-declarations': 'off',
+    'react/no-array-index-key': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

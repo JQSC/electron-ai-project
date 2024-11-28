@@ -42,14 +42,6 @@ const SettingDirModal: React.FC<SettingDirModalProps> = ({
     form.setFieldValue('sourcePath', path);
   };
 
-  const onFinish = async (values: any) => {
-    const { sourcePath, override, excludeDirs, includeExts } = values;
-    // 校验
-    if (!sourcePath) {
-      message.error('请选择路径');
-    }
-  };
-
   return (
     <Modal
       title="设置目录"
@@ -60,13 +52,15 @@ const SettingDirModal: React.FC<SettingDirModalProps> = ({
     >
       <Form
         form={form}
-        onFinish={onFinish}
+        name="settingDirModal"
         layout="inline"
         initialValues={{
           sourcePath: '',
           override: '0',
           includeExts: ['tsx', 'jsx'],
+          excludeDirs: '',
         }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <Form.Item label="选择目录或文件">
@@ -81,11 +75,7 @@ const SettingDirModal: React.FC<SettingDirModalProps> = ({
           </Form.Item>
 
           <Form.Item label="文件后缀" name="includeExts">
-            <Select
-              mode="multiple"
-              placeholder="请选择文件扩展名"
-              defaultValue={['txt']}
-            >
+            <Select mode="multiple" placeholder="请选择文件扩展名">
               <Select.Option value="ts">.ts</Select.Option>
               <Select.Option value="tsx">.tsx</Select.Option>
               <Select.Option value="jsx">.jsx</Select.Option>
