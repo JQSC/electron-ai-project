@@ -19,6 +19,7 @@
       "@common/*": ["src/renderer/common/*"],
       "@components/*": ["src/renderer/components/*"],
       "@hooks/*": ["src/renderer/hooks/*"],
+      "@constants/*": ["src/renderer/constants/*"],
       "@pages/*": ["src/renderer/pages/*"],
       "@router/*": ["src/renderer/router/*"],
       "@views/*": ["src/renderer/views/*"],

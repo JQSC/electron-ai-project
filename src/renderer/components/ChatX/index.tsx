@@ -4,6 +4,7 @@ import {
   Attachments,
   Bubble,
   Conversations,
+  PromptProps,
   Prompts,
   Sender,
   Welcome,
@@ -12,8 +13,10 @@ import {
 } from '@ant-design/x';
 
 import { type GetProp } from 'antd';
+
 import ChatWelcome from './components/ChatWelcome';
 import ChatCommandTags from './components/ChatCommandTags';
+import ChatPrompts from './components/ChatPrompts';
 import useStyle from './style';
 
 // 添加模型列表
@@ -52,13 +55,16 @@ const Independent: React.FC = () => {
 
   // ==================== Runtime ====================
   const [agent] = useXAgent({
-    request: async ({ message }, { onSuccess }) => {
-      // const res = await window.electronAPI.generate({
-      //   model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-      //   content: message,
-      // });
-      // onSuccess(res);
-      onSuccess(`Mock success return. You said: ${message} `);
+    request: async ({ message }, { onSuccess, onError }) => {
+      const res = await window.electronAPI.generate({
+        model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+        content: message,
+      });
+      if (res) {
+        onSuccess(res);
+      } else {
+        onError(new Error('生成失败'));
+      }
     },
   });
 
@@ -93,6 +99,11 @@ const Independent: React.FC = () => {
     setContent('');
   };
 
+  const handlePromptsChange = (data: any) => {
+    console.log('data', data);
+    onRequest(data.prompt);
+  };
+
   // ==================== Render =================
   return (
     <div className={styles.layout}>
@@ -110,7 +121,7 @@ const Independent: React.FC = () => {
         {/* 🌟 消息列表 */}
         <Bubble.List items={items} roles={roles} className={styles.messages} />
         {/* 🌟 提示词 */}
-        {/* <Prompts items={senderPromptsItems} onItemClick={onPromptsItemClick} /> */}
+        <ChatPrompts onChange={handlePromptsChange} />
         {/* 🌟 输入框 */}
         <Sender
           value={content}

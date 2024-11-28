@@ -49,6 +49,7 @@ const configuration: webpack.Configuration = {
     plugins: [new TsconfigPathsPlugins()],
     alias: {
       '@types': '../../src/types',
+      '@constants': '../../src/renderer/constants',
       '@components': '../../src/renderer/components',
       '@views': '../../src/renderer/views',
       '@static': '../../src/renderer/static',
