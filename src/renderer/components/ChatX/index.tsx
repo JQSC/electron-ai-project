@@ -14,6 +14,7 @@ import {
 
 import { type GetProp } from 'antd';
 
+import { SmileOutlined, UserOutlined } from '@ant-design/icons';
 import ChatWelcome from './components/ChatWelcome';
 import ChatCommandTags from './components/ChatCommandTags';
 import ChatPrompts from './components/ChatPrompts';
@@ -27,8 +28,14 @@ const modelOptions = [
 ];
 
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
+  user: {
+    placement: 'end',
+    variant: 'shadow',
+    avatar: { icon: <UserOutlined />, style: { background: '#87d068' } },
+  },
   ai: {
     placement: 'start',
+    avatar: { icon: <UserOutlined />, style: { background: '#fde3cf' } },
     typing: { step: 5, interval: 20 },
     styles: {
       content: {
@@ -36,9 +43,22 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
       },
     },
   },
-  local: {
-    placement: 'end',
-    variant: 'shadow',
+  suggestion: {
+    placement: 'start',
+    avatar: { icon: <UserOutlined />, style: { visibility: 'hidden' } },
+    variant: 'borderless',
+    messageRender: (content) => {
+      return (
+        <Prompts
+          vertical
+          items={(content as any as string[]).map((text) => ({
+            key: text,
+            icon: <SmileOutlined style={{ color: '#FAAD14' }} />,
+            description: text,
+          }))}
+        />
+      );
+    },
   },
 };
 
@@ -55,27 +75,60 @@ const Independent: React.FC = () => {
 
   // ==================== Runtime ====================
   const [agent] = useXAgent({
-    request: async ({ message }, { onSuccess, onError }) => {
-      const res = await window.electronAPI.generate({
-        model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-        content: message,
+    request: async ({ message }, { onSuccess, onUpdate, onError }) => {
+      // const res = await window.electronAPI.generate({
+      //   model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+      //   content: message,
+      // });
+
+      onUpdate({
+        list: [{ type: 'ai', content: '生成中...' }],
       });
+      setTimeout(() => {
+        onUpdate({
+          list: [{ type: 'suggestion', content: ['1111', '2222'] }],
+        });
+      }, 1000);
+
+      setTimeout(() => {
+        onSuccess({
+          list: [
+            { type: 'ai', content: res },
+            { type: 'suggestion', content: ['1111', '2222'] },
+          ],
+        });
+      }, 2000);
+      const res = '生成成功';
       if (res) {
-        onSuccess(res);
       } else {
         onError(new Error('生成失败'));
       }
     },
   });
 
-  const { onRequest, messages } = useXChat({
+  const { onRequest, messages, parsedMessages } = useXChat({
     agent,
+    parser: (agentMessages) => {
+      console.log('agentMessages', agentMessages);
+
+      const list = agentMessages.content
+        ? [agentMessages]
+        : (agentMessages as any).list;
+
+      return (list || []).map((msg) => ({
+        role: msg.type,
+        content: msg.content,
+      }));
+    },
   });
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    onRequest(nextContent);
+    onRequest({
+      type: 'user',
+      content: nextContent,
+    });
     setContent('');
   };
 
@@ -85,12 +138,11 @@ const Independent: React.FC = () => {
 
   // ==================== Nodes ====================
 
-  const items: GetProp<typeof Bubble.List, 'items'> = messages.map(
+  const items: GetProp<typeof Bubble.List, 'items'> = parsedMessages.map(
     ({ id, message, status }) => ({
       key: id,
       loading: status === 'loading',
-      role: status === 'local' ? 'local' : 'ai',
-      content: message,
+      ...message,
     }),
   );
 
@@ -100,7 +152,7 @@ const Independent: React.FC = () => {
   };
 
   const handlePromptsChange = (data: any) => {
-    console.log('data', data);
+    console.log('messages', messages);
     onRequest(data.prompt);
   };
 
