@@ -49,6 +49,8 @@ export async function llmGenerate(options: {
     },
   );
 
+  // 流式输出
+
   let out = '';
   try {
     // eslint-disable-next-line no-restricted-syntax

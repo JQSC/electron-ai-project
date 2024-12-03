@@ -62,6 +62,15 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
   },
 };
 
+type AgentMessage = {
+  type: string;
+  content: string | string[];
+};
+
+type AgentResponse = {
+  list: AgentMessage[];
+};
+
 const Independent: React.FC = () => {
   // ==================== Style ====================
   const { styles } = useStyle();
@@ -69,40 +78,46 @@ const Independent: React.FC = () => {
   // ==================== State ====================
   const [content, setContent] = useState('');
 
-  const [selectedModel, setSelectedModel] = useState(
+  const [selectedModel,setSelectedModel] = useState(
     'Qwen2.5-Coder-32B-Instruct',
   );
 
   // ==================== Runtime ====================
-  const [agent] = useXAgent({
+  const [agent] = useXAgent<AgentResponse>({
     request: async ({ message }, { onSuccess, onUpdate, onError }) => {
-      // const res = await window.electronAPI.generate({
-      //   model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-      //   content: message,
-      // });
-
-      onUpdate({
-        list: [{ type: 'ai', content: '生成中...' }],
+      const res = await window.electronAPI.generate({
+        model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+        content: message,
       });
-      setTimeout(() => {
-        onUpdate({
-          list: [{ type: 'suggestion', content: ['1111', '2222'] }],
-        });
-      }, 1000);
 
-      setTimeout(() => {
+      console.log('res', res);
+
+      // onUpdate({
+      //   list: [{ type: 'ai', content: '生成中...' }],
+      // });
+      // setTimeout(() => {
+      //   onUpdate({
+      //     list: [{ type: 'ai', content: '生成中...' },{ type: 'suggestion', content: ['1111', '2222'] }],
+      //   });
+      // }, 1000);
+
+      // setTimeout(() => {
+      //   onSuccess({
+      //     list: [
+      //       { type: 'ai', content: res },
+      //       { type: 'suggestion', content: ['1111', '2222'] },
+      //     ],
+      //   });
+      // }, 2000);
+      if (res) {
         onSuccess({
           list: [
             { type: 'ai', content: res },
-            { type: 'suggestion', content: ['1111', '2222'] },
+            // { type: 'suggestion', content: ['1111', '2222'] },
           ],
         });
-      }, 2000);
-      const res = '生成成功';
-      if (res) {
-      } else {
-        onError(new Error('生成失败'));
       }
+      onError(new Error('生成失败'));
     },
   });
 
@@ -125,10 +140,7 @@ const Independent: React.FC = () => {
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    onRequest({
-      type: 'user',
-      content: nextContent,
-    });
+    onRequest(nextContent);
     setContent('');
   };
 
@@ -141,7 +153,7 @@ const Independent: React.FC = () => {
   const items: GetProp<typeof Bubble.List, 'items'> = parsedMessages.map(
     ({ id, message, status }) => ({
       key: id,
-      loading: status === 'loading',
+      // loading: status === 'loading',
       ...message,
     }),
   );
