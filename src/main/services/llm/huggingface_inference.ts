@@ -14,6 +14,8 @@ export async function llmGenerate(options: {
   prompt?: string;
   content: string;
   model: string;
+  onUpdate?: (content: string | undefined) => void;
+  onSuccess?: (content: string | undefined) => void;
 }) {
   const { prompt, content, model } = options;
 
@@ -48,7 +50,6 @@ export async function llmGenerate(options: {
       },
     },
   );
-
   // 流式输出
 
   let out = '';
@@ -56,14 +57,12 @@ export async function llmGenerate(options: {
     // eslint-disable-next-line no-restricted-syntax
     for await (const chunk of stream) {
       if (chunk.choices && chunk.choices.length > 0) {
-        console.log(
-          'chunk------------------------------',
-          chunk.choices[0].delta,
-        );
         const newContent = chunk.choices[0].delta.content;
+        options.onUpdate?.(newContent);
         out += newContent;
       }
     }
+    options.onSuccess?.(out);
     return out;
   } catch (error) {
     dialog.showErrorBox('错误', `调用大模型失败: ${error}`);

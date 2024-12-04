@@ -85,12 +85,28 @@ const Independent: React.FC = () => {
   // ==================== Runtime ====================
   const [agent] = useXAgent<AgentResponse>({
     request: async ({ message }, { onSuccess, onUpdate, onError }) => {
+      let output = '';
       const res = await window.electronAPI.generate({
         model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
         content: message,
       });
 
-      console.log('res', res);
+      window.electron.ipcRenderer.on('llmStreamOutput', (content) => {
+        output += content;
+        onUpdate({
+          list: [{ type: 'ai', content: output }],
+        });
+      });
+
+      window.electron.ipcRenderer.on('llmStreamEnd', (content) => {
+        onSuccess({
+          list: [{ type: 'ai', content}],
+        });
+        window.electron.ipcRenderer.removeAllListeners('llmStreamOutput');
+        window.electron.ipcRenderer.removeAllListeners('llmStreamEnd');
+      });
+
+      // console.log('res', res);
 
       // onUpdate({
       //   list: [{ type: 'ai', content: '生成中...' }],
@@ -110,6 +126,7 @@ const Independent: React.FC = () => {
       //   });
       // }, 2000);
       if (res) {
+        console.log('res', res);
         onSuccess({
           list: [
             { type: 'ai', content: res },
@@ -124,7 +141,7 @@ const Independent: React.FC = () => {
   const { onRequest, messages, parsedMessages } = useXChat({
     agent,
     parser: (agentMessages) => {
-      console.log('agentMessages', agentMessages);
+      // console.log('agentMessages', agentMessages);
 
       const list = agentMessages.content
         ? [agentMessages]
