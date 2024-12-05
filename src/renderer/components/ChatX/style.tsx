@@ -39,6 +39,16 @@ const useStyle = createStyles(({ token, css }) => {
     messages: css`
       flex: 1;
     `,
+    senderWrapper: css`
+      position: relative;
+    `,
+    senderIcon: css`
+      position: absolute;
+      right: 10px;
+      top: -30px;
+      cursor: pointer;
+      padding: 4px;
+    `,
     placeholder: css`
       flex: 1;
       padding-top: 32px;

@@ -14,7 +14,7 @@ import {
 
 import { type GetProp } from 'antd';
 
-import { SmileOutlined, UserOutlined } from '@ant-design/icons';
+import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import ChatWelcome from './components/ChatWelcome';
 import ChatCommandTags from './components/ChatCommandTags';
 import ChatPrompts from './components/ChatPrompts';
@@ -148,6 +148,10 @@ const Independent: React.FC = () => {
     });
   };
 
+  const handleClear = () => {
+    setMessages([]);
+  };
+
   // ==================== Render =================
   return (
     <div className={styles.layout}>
@@ -166,15 +170,20 @@ const Independent: React.FC = () => {
         <Bubble.List items={items} roles={roles} className={styles.messages} />
         {/* 🌟 提示词 */}
         <ChatPrompts onChange={handlePromptsChange} />
-        {/* 🌟 输入框 */}
-        <Sender
-          value={content}
-          onChange={onChange}
-          onSubmit={onSubmit}
-          prefix={<ChatCommandTags onChange={handleTagsChange} />}
-          loading={loading}
-          className={styles.sender}
-        />
+        <div className={styles.senderWrapper}>
+          <div className={styles.senderIcon} onClick={handleClear}>
+            <DeleteOutlined />
+          </div>
+          {/* 🌟 输入框 */}
+          <Sender
+            value={content}
+            onChange={onChange}
+            onSubmit={onSubmit}
+            prefix={<ChatCommandTags onChange={handleTagsChange} />}
+            loading={loading}
+            className={styles.sender}
+          />
+        </div>
       </div>
     </div>
   );
