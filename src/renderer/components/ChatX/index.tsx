@@ -67,10 +67,6 @@ type AgentMessage = {
   content: string | string[];
 };
 
-type AgentResponse = {
-  list: AgentMessage[];
-};
-
 const Independent: React.FC = () => {
   // ==================== Style ====================
   const { styles } = useStyle();
@@ -78,102 +74,67 @@ const Independent: React.FC = () => {
   // ==================== State ====================
   const [content, setContent] = useState('');
 
-  const [selectedModel,setSelectedModel] = useState(
+  const [messages, setMessages] = useState<AgentMessage[]>([]);
+
+  const [output, setOutput] = useState('');
+
+  const [loading, setLoading] = useState(false);
+
+  const [selectedModel, setSelectedModel] = useState(
     'Qwen2.5-Coder-32B-Instruct',
   );
 
-  // ==================== Runtime ====================
-  const [agent] = useXAgent<AgentResponse>({
-    request: async ({ message }, { onSuccess, onUpdate, onError }) => {
-      let output = '';
-      const res = await window.electronAPI.generate({
-        model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-        content: message,
-      });
+  const items: GetProp<typeof Bubble.List, 'items'> = messages.map(
+    (message) => ({
+      // loading: status === 'loading',
+      ...message,
+      ...roles[message.type],
+    }),
+  );
 
-      window.electron.ipcRenderer.on('llmStreamOutput', (content) => {
-        output += content;
-        onUpdate({
-          list: [{ type: 'ai', content: output }],
-        });
-      });
+  useEffect(() => {
+    window.electron.ipcRenderer.on('llmStreamOutput', (content) => {
+      const msg = output + content;
+      setOutput(msg);
 
-      window.electron.ipcRenderer.on('llmStreamEnd', (content) => {
-        onSuccess({
-          list: [{ type: 'ai', content}],
-        });
-        window.electron.ipcRenderer.removeAllListeners('llmStreamOutput');
-        window.electron.ipcRenderer.removeAllListeners('llmStreamEnd');
-      });
+      messages[messages.length - 1].content = msg;
 
-      // console.log('res', res);
+      setMessages(messages);
+    });
 
-      // onUpdate({
-      //   list: [{ type: 'ai', content: '生成中...' }],
-      // });
-      // setTimeout(() => {
-      //   onUpdate({
-      //     list: [{ type: 'ai', content: '生成中...' },{ type: 'suggestion', content: ['1111', '2222'] }],
-      //   });
-      // }, 1000);
+    window.electron.ipcRenderer.on('llmStreamEnd', (content) => {
+      setOutput('');
 
-      // setTimeout(() => {
-      //   onSuccess({
-      //     list: [
-      //       { type: 'ai', content: res },
-      //       { type: 'suggestion', content: ['1111', '2222'] },
-      //     ],
-      //   });
-      // }, 2000);
-      if (res) {
-        console.log('res', res);
-        onSuccess({
-          list: [
-            { type: 'ai', content: res },
-            // { type: 'suggestion', content: ['1111', '2222'] },
-          ],
-        });
-      }
-      onError(new Error('生成失败'));
-    },
-  });
+      messages[messages.length - 1].content = content as string;
+      setMessages(messages);
+      setLoading(false);
+    });
 
-  const { onRequest, messages, parsedMessages } = useXChat({
-    agent,
-    parser: (agentMessages) => {
-      // console.log('agentMessages', agentMessages);
-
-      const list = agentMessages.content
-        ? [agentMessages]
-        : (agentMessages as any).list;
-
-      return (list || []).map((msg) => ({
-        role: msg.type,
-        content: msg.content,
-      }));
-    },
-  });
+    return () => {
+      window.electron.ipcRenderer.removeAllListeners('llmStreamOutput');
+      window.electron.ipcRenderer.removeAllListeners('llmStreamEnd');
+    };
+  }, [messages, output]);
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    onRequest(nextContent);
     setContent('');
+    setLoading(true);
+    setMessages([
+      ...messages,
+      { type: 'user', content: nextContent },
+      { type: 'ai', content: '思考中...' },
+    ]);
+    window.electronAPI.generate({
+      model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+      content: nextContent,
+    });
   };
 
   const onChange = (nextContent: string) => {
     setContent(nextContent);
   };
-
-  // ==================== Nodes ====================
-
-  const items: GetProp<typeof Bubble.List, 'items'> = parsedMessages.map(
-    ({ id, message, status }) => ({
-      key: id,
-      // loading: status === 'loading',
-      ...message,
-    }),
-  );
 
   const handleTagsChange = (tags) => {
     console.log('tags', tags);
@@ -181,8 +142,10 @@ const Independent: React.FC = () => {
   };
 
   const handlePromptsChange = (data: any) => {
-    console.log('messages', messages);
-    onRequest(data.prompt);
+    window.electronAPI.generate({
+      model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+      content: data.prompt,
+    });
   };
 
   // ==================== Render =================
@@ -209,7 +172,7 @@ const Independent: React.FC = () => {
           onChange={onChange}
           onSubmit={onSubmit}
           prefix={<ChatCommandTags onChange={handleTagsChange} />}
-          loading={agent.isRequesting()}
+          loading={loading}
           className={styles.sender}
         />
       </div>
