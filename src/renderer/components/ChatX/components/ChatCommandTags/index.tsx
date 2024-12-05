@@ -73,8 +73,24 @@ export default function ChatCommandTags({ onChange }) {
     },
   ];
 
-  const onMenuClick = (e) => {
-    console.log('click', e);
+  const onMenuClick = (e, tagIndex) => {
+    const deleteTag = () => {
+      const newTags = tags.filter((_, index) => index !== tagIndex);
+      setTags(newTags);
+      onChange(newTags);
+    };
+
+    switch (e.key) {
+      case '1':
+        deleteTag();
+        handleAddTag(tags[tagIndex].type);
+        break;
+      case '2':
+        deleteTag();
+        break;
+      default:
+        break;
+    }
   };
 
   const tagContent = (
@@ -97,7 +113,7 @@ export default function ChatCommandTags({ onChange }) {
         <div className={styles.tags}>
           {tags.map((tag, index) => (
             <Dropdown.Button
-              menu={{ items: menuItems, onClick: onMenuClick }}
+              menu={{ items: menuItems, onClick: (e) => onMenuClick(e, index) }}
               key={index}
             >
               {tag.fileName}

@@ -116,9 +116,7 @@ const Independent: React.FC = () => {
     };
   }, [messages, output]);
 
-  // ==================== Event ====================
-  const onSubmit = (nextContent: string) => {
-    if (!nextContent) return;
+  const request = (nextContent: string) => {
     setContent('');
     setLoading(true);
     setMessages([
@@ -131,6 +129,11 @@ const Independent: React.FC = () => {
       content: nextContent,
     });
   };
+  // ==================== Event ====================
+  const onSubmit = (nextContent: string) => {
+    if (!nextContent) return;
+    request(nextContent);
+  };
 
   const onChange = (nextContent: string) => {
     setContent(nextContent);
@@ -138,14 +141,11 @@ const Independent: React.FC = () => {
 
   const handleTagsChange = (tags) => {
     console.log('tags', tags);
-    setContent('');
+    setContent(' ');
   };
 
   const handlePromptsChange = (data: any) => {
-    window.electronAPI.generate({
-      model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-      content: data.prompt,
-    });
+    request(data.prompt);
   };
 
   const handleClear = () => {
