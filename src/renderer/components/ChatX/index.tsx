@@ -33,7 +33,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
     variant: 'shadow',
     avatar: { icon: <UserOutlined />, style: { background: '#87d068' } },
   },
-  ai: {
+  system: {
     placement: 'start',
     avatar: { icon: <UserOutlined />, style: { background: '#fde3cf' } },
     typing: { step: 5, interval: 20 },
@@ -63,7 +63,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 };
 
 type AgentMessage = {
-  type: string;
+  role: string;
   content: string | string[];
 };
 
@@ -116,23 +116,23 @@ const Independent: React.FC = () => {
     };
   }, [messages, output]);
 
-  const request = (nextContent: string) => {
-    setContent('');
-    setLoading(true);
-    setMessages([
-      ...messages,
-      { type: 'user', content: nextContent },
-      { type: 'ai', content: '思考中...' },
-    ]);
+  const request = (messages: AgentMessage[]) => {
     window.electronAPI.generate({
       model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-      content: nextContent,
+      messages,
     });
   };
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    request(nextContent);
+    setContent('');
+    setLoading(true);
+
+    const newMessages = [...messages, { role: 'user', content: nextContent }];
+
+    request(newMessages);
+
+    setMessages([...newMessages, { role: 'ai', content: '思考中...' }]);
   };
 
   const onChange = (nextContent: string) => {

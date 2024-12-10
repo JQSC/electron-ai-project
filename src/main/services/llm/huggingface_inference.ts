@@ -9,23 +9,23 @@ if (!HUGGINGFACE_API_KEY) {
 }
 
 const client = new HfInference(HUGGINGFACE_API_KEY);
+
+// { role: 'system', content: prompt || '你是一个AI助手' },
+// { role: 'user', content },
+
 // 根据传入的文本，调用大模型处理返回结果
 export async function llmGenerate(options: {
-  prompt?: string;
-  content: string;
+  messages: { role: string; content: string }[];
   model: string;
   onUpdate?: (content: string | undefined) => void;
   onSuccess?: (content: string | undefined) => void;
 }) {
-  const { prompt, content, model } = options;
+  const { messages, model } = options;
 
   const stream = client.chatCompletionStream(
     {
       model,
-      messages: [
-        { role: 'system', content: prompt || '你是一个AI助手' },
-        { role: 'user', content },
-      ],
+      messages,
       max_tokens: 5000,
       timeout: 10000,
     },

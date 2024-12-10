@@ -7,14 +7,13 @@ const handleLLMGenerate = async (
   event: IpcMainInvokeEvent,
   options: LLMGenerateOptions,
 ) => {
-  const { prompt, model, content, optimize } = options;
+  const { messages, model, optimize } = options;
   // if (optimize) {
   //   return optimizeCode(llmGenerate, options);
   // }
   return services.llmGenerate({
-    prompt: prompt || '你是一个AI助手',
     model,
-    content,
+    messages,
     onUpdate: (content) => {
       event.sender.send('llmStreamOutput', content);
     },
