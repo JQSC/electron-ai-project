@@ -74,7 +74,11 @@ const Independent: React.FC = () => {
   // ==================== State ====================
   const [content, setContent] = useState('');
 
+  // 对话上下文
   const [messages, setMessages] = useState<AgentMessage[]>([]);
+
+  // 存储标签
+  const [files, setFiles] = useState<any[]>([]);
 
   const [output, setOutput] = useState('');
 
@@ -88,7 +92,7 @@ const Independent: React.FC = () => {
     (message) => ({
       // loading: status === 'loading',
       ...message,
-      ...roles[message.type],
+      ...roles[message.role],
     }),
   );
 
@@ -117,6 +121,7 @@ const Independent: React.FC = () => {
   }, [messages, output]);
 
   const request = (messages: AgentMessage[]) => {
+    console.log('messages', messages);
     window.electronAPI.generate({
       model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
       messages,
@@ -124,7 +129,7 @@ const Independent: React.FC = () => {
   };
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
-    if (!nextContent) return;
+    if ((!nextContent && !files.length) || nextContent === ' ') return;
     setContent('');
     setLoading(true);
 
@@ -132,15 +137,16 @@ const Independent: React.FC = () => {
 
     request(newMessages);
 
-    setMessages([...newMessages, { role: 'ai', content: '思考中...' }]);
+    setMessages([...newMessages, { role: 'system', content: '思考中...' }]);
   };
 
   const onChange = (nextContent: string) => {
     setContent(nextContent);
   };
 
-  const handleTagsChange = (tags) => {
-    console.log('tags', tags);
+  // 增加标签
+  const handleTagsChange = (tags: any) => {
+    setFiles(tags);
     setContent(' ');
   };
 
