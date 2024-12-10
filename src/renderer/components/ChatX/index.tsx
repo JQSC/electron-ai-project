@@ -16,7 +16,7 @@ import { type GetProp } from 'antd';
 
 import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import ChatWelcome from './components/ChatWelcome';
-import ChatCommandTags from './components/ChatCommandTags';
+import ChatCommandTags from '../ChatCommandTags';
 import ChatPrompts from './components/ChatPrompts';
 import useStyle from './style';
 
@@ -151,7 +151,7 @@ const Independent: React.FC = () => {
   };
 
   const handlePromptsChange = (data: any) => {
-    request(data.prompt);
+    onSubmit(data.prompt);
   };
 
   const handleClear = () => {

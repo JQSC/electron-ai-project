@@ -7,12 +7,17 @@ export default function ChatWelcome() {
   return (
     <Space direction="vertical" size={16} style={{ flex: 1, paddingTop: 32 }}>
       <Welcome
+        style={{
+          backgroundImage: 'linear-gradient(97deg, #f2f9fe 0%, #f7f3ff 100%)',
+          borderRadius: 4,
+          padding: '12px 16px',
+        }}
         variant="borderless"
-        // icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+        icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
         title="AI 工具集"
         description="自然语言生成、批量修改项目源码"
       />
-      <div className="model-info">
+      {/* <div className="model-info">
         <div className="model-header">
           <h2>Current Model</h2>
           <Button
@@ -46,7 +51,7 @@ export default function ChatWelcome() {
             <span>Website</span>
           </a>
         </div>
-      </div>
+      </div> */}
     </Space>
   );
 }

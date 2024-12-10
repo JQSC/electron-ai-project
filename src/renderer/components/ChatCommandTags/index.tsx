@@ -2,8 +2,30 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Dropdown, message, Popover, Space } from 'antd';
 import { useState } from 'react';
 import SettingDirModal from '@components/SettingDirModal';
-import { TagType } from '../../../../../types/chat';
+import { TagType } from '../../../types/chat';
 import styles from './index.module.less';
+
+const tools = [
+  {
+    key: '1',
+    label: '增加注释',
+  },
+  {
+    key: '2',
+    label: '调整依赖顺序',
+  },
+];
+
+const menuItems = [
+  {
+    key: '1',
+    label: '编辑',
+  },
+  {
+    key: '2',
+    label: '删除',
+  },
+];
 
 export default function ChatCommandTags({ onChange }) {
   const [visible, setVisible] = useState(false);
@@ -62,17 +84,6 @@ export default function ChatCommandTags({ onChange }) {
     setVisible(false);
   };
 
-  const menuItems = [
-    {
-      key: '1',
-      label: '编辑',
-    },
-    {
-      key: '2',
-      label: '删除',
-    },
-  ];
-
   const onMenuClick = (e, tagIndex) => {
     const deleteTag = () => {
       const newTags = tags.filter((_, index) => index !== tagIndex);
@@ -106,7 +117,7 @@ export default function ChatCommandTags({ onChange }) {
 
   return (
     <div className={styles.tagWrapper}>
-      <Popover content={tagContent} title="Add Tag" trigger="hover">
+      <Popover content={tagContent} title="工具列表" trigger="hover">
         <Button type="text" icon={<PlusOutlined />} />
       </Popover>
       {tags.length > 0 && (
