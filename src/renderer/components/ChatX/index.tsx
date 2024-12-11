@@ -18,6 +18,7 @@ import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import ChatWelcome from './components/ChatWelcome';
 import ChatCommandTags from '../ChatCommandTags';
 import ChatPrompts from './components/ChatPrompts';
+import WelcomeCard from '../WelcomeCard';
 import useStyle from './style';
 
 // 添加模型列表
@@ -171,7 +172,7 @@ const Independent: React.FC = () => {
       /> */}
       <div className={styles.chat}>
         {/* 🌟 欢迎占位 */}
-        {!items.length && <ChatWelcome />}
+        {!items.length && <WelcomeCard />}
         {/* 🌟 消息列表 */}
         <Bubble.List items={items} roles={roles} className={styles.messages} />
         {/* 🌟 提示词 */}
