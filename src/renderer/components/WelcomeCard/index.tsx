@@ -114,8 +114,8 @@ export default function ServiceCards() {
         }}
         variant="borderless"
         icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-        title="你好，我能帮你做些什么吗？"
-        description="我可以帮助你完成不同场景下的任务，快试试吧！"
+        title="AI 助手"
+        description="提供优化代码，解答疑问，执行任务等功能"
       />
     </Space>
   );

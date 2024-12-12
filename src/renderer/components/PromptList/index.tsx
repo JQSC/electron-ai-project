@@ -17,13 +17,13 @@ import './index.less';
 const scenes = [
   {
     icon: <BulbOutlined className="scene-icon bulb" />,
-    title: '每日工作总结',
-    description: '一键生成工作总结，查看项目关键进展和待办事项',
+    title: '代码注释生成',
+    description: '一键生成代码注释，提高代码可读性',
   },
   {
     icon: <SearchOutlined className="scene-icon search" />,
-    title: '企业搜一搜',
-    description: '帮助你搜索企业内的信息或回答相关问题',
+    title: '调整代码依赖顺序',
+    description: '一键调整代码依赖顺序，提高代码可读性',
   },
   {
     icon: <FilePdfOutlined className="scene-icon pdf" />,
@@ -44,11 +44,6 @@ const scenes = [
     icon: <TeamOutlined className="scene-icon team" />,
     title: '朋友圈文案大师',
     description: '精通各种风格的朋友圈文案创作',
-  },
-  {
-    icon: <PlaySquareOutlined className="scene-icon video" />,
-    title: '短视频脚本',
-    description: '为你创作出引人入胜的短视频脚本',
   },
   {
     icon: <BarChartOutlined className="scene-icon chart" />,

@@ -182,6 +182,7 @@ const Independent: React.FC = () => {
           <Popover
             placement="topLeft"
             title="选择场景"
+            trigger="click"
             content={<PromptList />}
           >
             <Button>选择场景</Button>
