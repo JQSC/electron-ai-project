@@ -44,75 +44,78 @@ const services: ServiceCard[] = [
   },
 ];
 
-export default function ServiceCards() {
+const PromptList = () => {
   const swiperRef = useRef<SwiperType | null>(null);
+  return (
+    <div className="service-container">
+      <div className="header">
+        <div className="sub-text">
+          我可以帮助你完成不同场景下的任务，快试试吧！
+        </div>
+      </div>
 
+      <div className="cards-container">
+        <div className="nav-buttons">
+          <Button
+            type="text"
+            className="nav-button prev"
+            icon={<LeftOutlined />}
+            onClick={() => swiperRef.current?.slidePrev()}
+          />
+          <Button
+            type="text"
+            className="nav-button next"
+            icon={<RightOutlined />}
+            onClick={() => swiperRef.current?.slideNext()}
+          />
+        </div>
+        <Swiper
+          modules={[Navigation]}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          slidesPerView={2}
+          spaceBetween={16}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+            },
+            768: {
+              slidesPerView: 3,
+            },
+            1024: {
+              slidesPerView: 4,
+            },
+          }}
+        >
+          {services.map((service, index) => (
+            <SwiperSlide key={index}>
+              <div className="service-card">
+                <div className={`icon-wrapper ${service.iconColor}`}>
+                  {service.icon}
+                </div>
+                <div className="title">{service.title}</div>
+                <div className="description">{service.description}</div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </div>
+  );
+};
+
+export default function ServiceCards() {
   return (
     <Space direction="vertical" size={16} style={{ flex: 1, paddingTop: 32 }}>
       <Welcome
         style={{
           backgroundImage: 'linear-gradient(97deg, #f2f9fe 0%, #f7f3ff 100%)',
           borderRadius: 4,
-          padding: '12px 16px',
+          padding: 16,
         }}
         variant="borderless"
         icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
         title="你好，我能帮你做些什么吗？"
-        description={
-          <div className="service-container">
-            <div className="header">
-              <div className="sub-text">
-                我可以帮助你完成不同场景下的任务，快试试吧！
-              </div>
-            </div>
-
-            <div className="cards-container">
-              <div className="nav-buttons">
-                <Button
-                  type="text"
-                  className="nav-button prev"
-                  icon={<LeftOutlined />}
-                  onClick={() => swiperRef.current?.slidePrev()}
-                />
-                <Button
-                  type="text"
-                  className="nav-button next"
-                  icon={<RightOutlined />}
-                  onClick={() => swiperRef.current?.slideNext()}
-                />
-              </div>
-              <Swiper
-                modules={[Navigation]}
-                onSwiper={(swiper) => (swiperRef.current = swiper)}
-                slidesPerView={2}
-                spaceBetween={16}
-                breakpoints={{
-                  640: {
-                    slidesPerView: 2,
-                  },
-                  768: {
-                    slidesPerView: 3,
-                  },
-                  1024: {
-                    slidesPerView: 4,
-                  },
-                }}
-              >
-                {services.map((service, index) => (
-                  <SwiperSlide key={index}>
-                    <div className="service-card">
-                      <div className={`icon-wrapper ${service.iconColor}`}>
-                        {service.icon}
-                      </div>
-                      <div className="title">{service.title}</div>
-                      <div className="description">{service.description}</div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
-        }
+        description="我可以帮助你完成不同场景下的任务，快试试吧！"
       />
     </Space>
   );

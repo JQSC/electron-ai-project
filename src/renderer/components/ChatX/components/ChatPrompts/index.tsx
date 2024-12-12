@@ -37,7 +37,7 @@ const ChatPrompts = ({ onChange }: { onChange: (data: any) => void }) => {
 
   return (
     <Prompts
-      title="🤔 选择提示词"
+      title="🤔 场景"
       items={senderPromptsItems}
       onItemClick={onPromptsItemClick}
       wrap

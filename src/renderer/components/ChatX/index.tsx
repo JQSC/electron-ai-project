@@ -12,15 +12,16 @@ import {
   useXChat,
 } from '@ant-design/x';
 
-import { type GetProp } from 'antd';
+import { Button, Popover, type GetProp } from 'antd';
 
 import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import ChatWelcome from './components/ChatWelcome';
 import ChatCommandTags from '../ChatCommandTags';
 import ChatPrompts from './components/ChatPrompts';
 import WelcomeCard from '../WelcomeCard';
-import useStyle from './style';
+import PromptList from '../PromptList';
 
+import useStyle from './style';
 // 添加模型列表
 const modelOptions = [
   { value: 'Qwen2.5-Coder-32B-Instruct', label: 'Qwen 2.5 Coder 32B' },
@@ -176,21 +177,29 @@ const Independent: React.FC = () => {
         {/* 🌟 消息列表 */}
         <Bubble.List items={items} roles={roles} className={styles.messages} />
         {/* 🌟 提示词 */}
-        <ChatPrompts onChange={handlePromptsChange} />
-        <div className={styles.senderWrapper}>
-          <div className={styles.senderIcon} onClick={handleClear}>
+        {/* <ChatPrompts onChange={handlePromptsChange} /> */}
+        <div className={styles.toolWrapper}>
+          <Popover
+            placement="topLeft"
+            title="选择场景"
+            content={<PromptList />}
+          >
+            <Button>选择场景</Button>
+          </Popover>
+
+          <div className={styles.toolIcon} onClick={handleClear}>
             <DeleteOutlined />
           </div>
-          {/* 🌟 输入框 */}
-          <Sender
-            value={content}
-            onChange={onChange}
-            onSubmit={onSubmit}
-            prefix={<ChatCommandTags onChange={handleTagsChange} />}
-            loading={loading}
-            className={styles.sender}
-          />
         </div>
+        {/* 🌟 输入框 */}
+        <Sender
+          value={content}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          prefix={<ChatCommandTags onChange={handleTagsChange} />}
+          loading={loading}
+          className={styles.sender}
+        />
       </div>
     </div>
   );

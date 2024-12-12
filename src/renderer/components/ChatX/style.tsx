@@ -39,16 +39,6 @@ const useStyle = createStyles(({ token, css }) => {
     messages: css`
       flex: 1;
     `,
-    senderWrapper: css`
-      position: relative;
-    `,
-    senderIcon: css`
-      position: absolute;
-      right: 10px;
-      top: -30px;
-      cursor: pointer;
-      padding: 4px;
-    `,
     placeholder: css`
       flex: 1;
       padding-top: 32px;
@@ -62,6 +52,19 @@ const useStyle = createStyles(({ token, css }) => {
       border: 1px solid #1677ff34;
       width: calc(100% - 24px);
       margin: 0 12px 24px 12px;
+    `,
+    toolWrapper: css`
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    `,
+    toolIcon: css`
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      &:hover {
+        background: #1677ff0f;
+      }
     `,
   };
 });
