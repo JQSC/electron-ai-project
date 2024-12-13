@@ -1,33 +1,12 @@
 import React, { useEffect, useState } from 'react';
-
-import {
-  Attachments,
-  Bubble,
-  Conversations,
-  PromptProps,
-  Prompts,
-  Sender,
-  Welcome,
-  useXAgent,
-  useXChat,
-} from '@ant-design/x';
-
+import { Bubble, Prompts, Sender } from '@ant-design/x';
 import { Button, Popover, type GetProp } from 'antd';
-
 import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
-import ChatWelcome from './components/ChatWelcome';
-import ChatCommandTags from '../ChatCommandTags';
-import ChatPrompts from './components/ChatPrompts';
-import WelcomeCard from '../WelcomeCard';
-import PromptList from '../PromptList';
+import ChatCommandTags from '@components/ChatCommandTags';
+import WelcomeCard from '@components/WelcomeCard';
+import PromptList from '@components/PromptList';
 
 import useStyle from './style';
-// 添加模型列表
-const modelOptions = [
-  { value: 'Qwen2.5-Coder-32B-Instruct', label: 'Qwen 2.5 Coder 32B' },
-  { value: 'CodeLlama-34b', label: 'Code Llama 34B' },
-  { value: 'GPT-4', label: 'GPT-4' },
-];
 
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
   user: {
@@ -69,7 +48,7 @@ type AgentMessage = {
   content: string | string[];
 };
 
-const Independent: React.FC = () => {
+const Chat: React.FC = () => {
   // ==================== Style ====================
   const { styles } = useStyle();
 
@@ -206,4 +185,4 @@ const Independent: React.FC = () => {
   );
 };
 
-export default Independent;
+export default Chat;

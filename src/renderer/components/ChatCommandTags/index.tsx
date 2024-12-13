@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Dropdown, message, Popover, Space } from 'antd';
 import { useState } from 'react';
-import SettingDirModal from '@components/SettingDirModal';
+import PromptsCommentModal from '@components/PromptsComment';
 import { TagType } from '../../../types/chat';
 import styles from './index.module.less';
 
@@ -132,7 +132,7 @@ export default function ChatCommandTags({ onChange }) {
           ))}
         </div>
       )}
-      <SettingDirModal
+      <PromptsCommentModal
         visible={visible}
         onCancel={handleCancel}
         onOk={handleOk}
