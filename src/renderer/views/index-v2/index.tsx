@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Bubble, Prompts, Sender } from '@ant-design/x';
-import { Button, Popover, type GetProp } from 'antd';
+import { Button, Popover, type GetProp, Typography, Space } from 'antd';
 import { SmileOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import ChatCommandTags from '@components/ChatCommandTags';
 import WelcomeCard from '@components/WelcomeCard';
@@ -55,6 +55,8 @@ const Chat: React.FC = () => {
   // ==================== State ====================
   const [content, setContent] = useState('');
 
+  const [prompt, setPrompt] = useState(null);
+
   // 对话上下文
   const [messages, setMessages] = useState<AgentMessage[]>([]);
 
@@ -64,6 +66,8 @@ const Chat: React.FC = () => {
   const [output, setOutput] = useState('');
 
   const [loading, setLoading] = useState(false);
+
+  const [senderHeader, setSenderHeader] = React.useState(false);
 
   const [selectedModel, setSelectedModel] = useState(
     'Qwen2.5-Coder-32B-Instruct',
@@ -139,6 +143,14 @@ const Chat: React.FC = () => {
     setMessages([]);
   };
 
+  const handleSelectPrompt = (item: any) => {
+    // 点击关闭Popover
+    document.getElementById('select-scene')?.click();
+    console.log('item', item);
+    setPrompt(item);
+    setSenderHeader(true);
+  };
+
   // ==================== Render =================
   return (
     <div className={styles.layout}>
@@ -162,9 +174,9 @@ const Chat: React.FC = () => {
             placement="topLeft"
             title="选择场景"
             trigger="click"
-            content={<PromptList />}
+            content={<PromptList onSelect={handleSelectPrompt} />}
           >
-            <Button>选择场景</Button>
+            <Button id="select-scene">选择场景</Button>
           </Popover>
 
           <div className={styles.toolIcon} onClick={handleClear}>
@@ -173,6 +185,20 @@ const Chat: React.FC = () => {
         </div>
         {/* 🌟 输入框 */}
         <Sender
+          header={
+            <Sender.Header
+              open={senderHeader}
+              title={
+                <Space>
+                  <Typography.Text type="secondary">
+                    {prompt?.icon}
+                    {`  ${prompt?.title}`}
+                  </Typography.Text>
+                </Space>
+              }
+              onOpenChange={setSenderHeader}
+            />
+          }
           value={content}
           onChange={onChange}
           onSubmit={onSubmit}

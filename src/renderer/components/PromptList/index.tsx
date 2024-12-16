@@ -12,6 +12,7 @@ import {
   BarChartOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+import { COMMENT_PROMPT, DEPENDENT_SORT_PROMPT } from '@constants/prompts';
 import './index.less';
 
 const scenes = [
@@ -19,11 +20,13 @@ const scenes = [
     icon: <BulbOutlined className="scene-icon bulb" />,
     title: '代码注释生成',
     description: '一键生成代码注释，提高代码可读性',
+    prompt: COMMENT_PROMPT,
   },
   {
     icon: <SearchOutlined className="scene-icon search" />,
     title: '调整代码依赖顺序',
     description: '一键调整代码依赖顺序，提高代码可读性',
+    prompt: DEPENDENT_SORT_PROMPT,
   },
   {
     icon: <FilePdfOutlined className="scene-icon pdf" />,
@@ -57,7 +60,13 @@ const scenes = [
   },
 ];
 
-const SceneList: React.FC = () => {
+const SceneList: React.FC<{ onSelect: (item: any) => void }> = ({
+  onSelect,
+}) => {
+  const handleSelectPrompt = (item: any) => {
+    onSelect(item);
+  };
+
   return (
     <Scrollbars style={{ width: 500, height: 300 }}>
       <List
@@ -65,7 +74,10 @@ const SceneList: React.FC = () => {
         itemLayout="horizontal"
         dataSource={scenes}
         renderItem={(item) => (
-          <List.Item className="scene-item">
+          <List.Item
+            className="scene-item"
+            onClick={() => handleSelectPrompt(item)}
+          >
             <List.Item.Meta
               avatar={item.icon}
               title={item.title}
