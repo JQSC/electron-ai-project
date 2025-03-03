@@ -2,13 +2,23 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 // import Hello from '../views/home';
 // import Index from '../views/index';
 import Chat from '../views/index-v2';
+import UserManagement from '../views/user-management';
+import Navigation from '../components/Navigation';
 
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Chat />} />
-      </Routes>
+      <div
+        style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}
+      >
+        <Navigation />
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          <Routes>
+            <Route path="/" element={<Chat />} />
+            <Route path="/users" element={<UserManagement />} />
+          </Routes>
+        </div>
+      </div>
     </Router>
   );
 }
