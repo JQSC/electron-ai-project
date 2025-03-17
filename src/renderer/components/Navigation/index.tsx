@@ -21,6 +21,11 @@ const Navigation: React.FC = () => {
       icon: <UserOutlined />,
       label: '用户管理',
     },
+    {
+      key: '/compile',
+      icon: <UserOutlined />,
+      label: '编译管理',
+    },
   ];
 
   const handleMenuClick = (e: { key: string }) => {

@@ -3,6 +3,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 // import Index from '../views/index';
 import Chat from '../views/index-v2';
 import UserManagement from '../views/user-management';
+import CompilePage from '../views/compile';
 import Navigation from '../components/Navigation';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Chat />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/compile" element={<CompilePage />} />
           </Routes>
         </div>
       </div>
