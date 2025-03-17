@@ -4,7 +4,12 @@
 import React from 'react';
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { HomeOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  HomeOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  BuildOutlined,
+} from '@ant-design/icons';
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
@@ -23,8 +28,13 @@ const Navigation: React.FC = () => {
     },
     {
       key: '/compile',
-      icon: <UserOutlined />,
+      icon: <BuildOutlined />,
       label: '编译管理',
+    },
+    {
+      key: '/contract-comparison',
+      icon: <FileTextOutlined />,
+      label: '合同对比',
     },
   ];
 

@@ -4,6 +4,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import Chat from '../views/index-v2';
 import UserManagement from '../views/user-management';
 import CompilePage from '../views/compile';
+import ContractComparison from '../views/contract-comparison';
 import Navigation from '../components/Navigation';
 
 export default function App() {
@@ -18,6 +19,10 @@ export default function App() {
             <Route path="/" element={<Chat />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/compile" element={<CompilePage />} />
+            <Route
+              path="/contract-comparison"
+              element={<ContractComparison />}
+            />
           </Routes>
         </div>
       </div>
