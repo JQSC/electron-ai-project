@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Badge, Tooltip } from 'antd';
 import * as Diff from 'diff';
+import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 import './ContractDiffViewer.less';
 
 const { TabPane } = Tabs;
 
 interface Position {
   line: number;
-  column: number;
+  column?: number;
 }
 
+// 接口返回的修改点格式
+interface ApiModification {
+  type: number; // 1: 新增, 2: 删除, 3: 修改
+  info: string;
+  text: string;
+  position: Position;
+}
+
+// 组件内部使用的修改点格式
 interface Modification {
   id: number;
   type: string;
@@ -20,7 +30,7 @@ interface Modification {
 interface ContractDiffViewerProps {
   originalContent: string;
   modifiedContent: string;
-  modifications: Modification[];
+  modifications: Modification[] | ApiModification[];
 }
 
 /**
@@ -47,6 +57,51 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
     original: { [key: number]: string };
     modified: { [key: number]: string };
   }>({ original: {}, modified: {} });
+  // 标准化后的修改点列表
+  const [normalizedModifications, setNormalizedModifications] = useState<
+    Modification[]
+  >([]);
+
+  /**
+   * 标准化修改点数据
+   *
+   * @param {Modification[] | ApiModification[]} modifications - 修改点数据
+   * @returns {Modification[]} 标准化后的修改点数据
+   */
+  const normalizeModifications = (
+    modifications: Modification[] | ApiModification[],
+  ): Modification[] => {
+    if (!modifications || modifications.length === 0) {
+      return [];
+    }
+
+    // 检查是否为 API 返回的格式
+    if (
+      'type' in modifications[0] &&
+      typeof modifications[0].type === 'number'
+    ) {
+      return (modifications as ApiModification[]).map((mod, index) => {
+        const typeMap: { [key: number]: string } = {
+          1: '新增',
+          2: '删除',
+          3: '修改',
+        };
+
+        return {
+          id: index + 1,
+          type: typeMap[mod.type] || '修改',
+          description: `${mod.info}: ${mod.text.substring(0, 30)}${mod.text.length > 30 ? '...' : ''}`,
+          position: {
+            line: mod.position.line,
+            column: mod.position.column || 1,
+          },
+        };
+      });
+    }
+
+    // 已经是标准格式
+    return modifications as Modification[];
+  };
 
   /**
    * 计算行级别的差异映射
@@ -75,13 +130,13 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
 
       if (part.removed) {
         // 标记删除的行
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < count; i += 1) {
           mapping.original[originalIndex + i] = 'removed';
         }
         originalIndex += count;
       } else if (part.added) {
         // 标记新增的行
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < count; i += 1) {
           mapping.modified[modifiedIndex + i] = 'added';
         }
         modifiedIndex += count;
@@ -94,7 +149,7 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
 
     // 对比每一行的内容，标记修改的行
     const minLength = Math.min(originalLines.length, modifiedLines.length);
-    for (let i = 0; i < minLength; i++) {
+    for (let i = 0; i < minLength; i += 1) {
       if (
         originalLines[i] !== modifiedLines[i] &&
         !mapping.original[i] &&
@@ -129,6 +184,14 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
       setLineDiffMap(lineDiffMapping);
     }
   }, [originalContent, modifiedContent]);
+
+  /**
+   * 标准化修改点数据
+   */
+  useEffect(() => {
+    const normalized = normalizeModifications(modifications);
+    setNormalizedModifications(normalized);
+  }, [modifications]);
 
   /**
    * 获取修改类型对应的颜色
@@ -176,7 +239,9 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
    */
   const getLineModification = (lineIndex: number): Modification | null => {
     return (
-      modifications.find((mod) => mod.position.line === lineIndex + 1) || null
+      normalizedModifications.find(
+        (mod) => mod.position.line === lineIndex + 1,
+      ) || null
     );
   };
 
@@ -236,20 +301,46 @@ const ContractDiffViewer: React.FC<ContractDiffViewerProps> = ({
    * @returns {React.ReactElement} 差异对比视图
    */
   const renderDiffView = () => {
+    // 使用 ReactDiffViewer 替代自定义对比视图
     return (
       <div className="diff-view">
-        <div className="document-panel">
-          <div className="document-header">原始文档</div>
-          <div className="document-content">
-            {renderLines(originalLines, true)}
-          </div>
-        </div>
-        <div className="document-panel">
-          <div className="document-header">修改后文档</div>
-          <div className="document-content">
-            {renderLines(modifiedLines, false)}
-          </div>
-        </div>
+        <ReactDiffViewer
+          oldValue={originalContent}
+          newValue={modifiedContent}
+          splitView
+          hideLineNumbers={false}
+          showDiffOnly={false}
+          // compareMethod={DiffMethod.WORDS}
+          // styles={{
+          //   variables: {
+          //     light: {
+          //       diffViewerBackground: '#fff',
+          //       addedBackground: 'rgba(82, 196, 26, 0.2)',
+          //       addedColor: '#52c41a',
+          //       removedBackground: 'rgba(255, 82, 82, 0.2)',
+          //       removedColor: '#f5222d',
+          //       wordAddedBackground: 'rgba(82, 196, 26, 0.4)',
+          //       wordRemovedBackground: 'rgba(255, 82, 82, 0.4)',
+          //       addedGutterBackground: 'rgba(82, 196, 26, 0.1)',
+          //       removedGutterBackground: 'rgba(255, 82, 82, 0.1)',
+          //       gutterBackground: '#f5f5f5',
+          //       gutterBackgroundDark: '#eee',
+          //       highlightBackground: '#fffbdd',
+          //       highlightGutterBackground: '#fffbdd',
+          //       codeFoldGutterBackground: '#eee',
+          //       codeFoldBackground: '#f5f5f5',
+          //       emptyLineBackground: '#fafbfc',
+          //       gutterColor: '#636363',
+          //       addedGutterColor: '#52c41a',
+          //       removedGutterColor: '#f5222d',
+          //       codeFoldContentColor: '#aaa',
+          //       diffViewerTitleBackground: '#fafbfc',
+          //       diffViewerTitleColor: '#333',
+          //       diffViewerTitleBorderColor: '#eee',
+          //     },
+          //   },
+          // }}
+        />
       </div>
     );
   };

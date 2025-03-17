@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, List, Tag, Typography, Badge } from 'antd';
 import {
   PlusCircleOutlined,
@@ -11,9 +11,18 @@ const { Title, Text } = Typography;
 
 interface Position {
   line: number;
-  column: number;
+  column?: number;
 }
 
+// 接口返回的修改点格式
+interface ApiModification {
+  type: number; // 1: 新增, 2: 删除, 3: 修改
+  info: string;
+  text: string;
+  position: Position;
+}
+
+// 组件内部使用的修改点格式
 interface Modification {
   id: number;
   type: string;
@@ -22,7 +31,7 @@ interface Modification {
 }
 
 interface ModificationListProps {
-  modifications: Modification[];
+  modifications: Modification[] | ApiModification[];
 }
 
 /**
@@ -34,6 +43,60 @@ interface ModificationListProps {
 const ModificationList: React.FC<ModificationListProps> = ({
   modifications,
 }) => {
+  // 标准化后的修改点列表
+  const [normalizedModifications, setNormalizedModifications] = useState<
+    Modification[]
+  >([]);
+
+  /**
+   * 标准化修改点数据
+   *
+   * @param {Modification[] | ApiModification[]} modifications - 修改点数据
+   * @returns {Modification[]} 标准化后的修改点数据
+   */
+  const normalizeModifications = (
+    modifications: Modification[] | ApiModification[],
+  ): Modification[] => {
+    if (!modifications || modifications.length === 0) {
+      return [];
+    }
+
+    // 检查是否为 API 返回的格式
+    if (
+      'type' in modifications[0] &&
+      typeof modifications[0].type === 'number'
+    ) {
+      return (modifications as ApiModification[]).map((mod, index) => {
+        const typeMap: { [key: number]: string } = {
+          1: '新增',
+          2: '删除',
+          3: '修改',
+        };
+
+        return {
+          id: index + 1,
+          type: typeMap[mod.type] || '修改',
+          description: `${mod.info}: ${mod.text.substring(0, 30)}${mod.text.length > 30 ? '...' : ''}`,
+          position: {
+            line: mod.position.line,
+            column: mod.position.column || 1,
+          },
+        };
+      });
+    }
+
+    // 已经是标准格式
+    return modifications as Modification[];
+  };
+
+  /**
+   * 标准化修改点数据
+   */
+  useEffect(() => {
+    const normalized = normalizeModifications(modifications);
+    setNormalizedModifications(normalized);
+  }, [modifications]);
+
   /**
    * 获取修改类型对应的图标
    *
@@ -79,13 +142,13 @@ const ModificationList: React.FC<ModificationListProps> = ({
    */
   const getModificationStats = () => {
     const stats = {
-      total: modifications.length,
+      total: normalizedModifications.length,
       add: 0,
       edit: 0,
       delete: 0,
     };
 
-    modifications.forEach((mod) => {
+    normalizedModifications.forEach((mod) => {
       switch (mod.type) {
         case '新增':
           stats.add += 1;
@@ -152,7 +215,7 @@ const ModificationList: React.FC<ModificationListProps> = ({
       <List
         className="modification-list"
         itemLayout="horizontal"
-        dataSource={modifications}
+        dataSource={normalizedModifications}
         renderItem={(item) => (
           <List.Item className="modification-item">
             <List.Item.Meta
