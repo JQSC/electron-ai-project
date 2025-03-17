@@ -6,6 +6,7 @@ import UserManagement from '../views/user-management';
 import CompilePage from '../views/compile';
 import ContractComparison from '../views/contract-comparison';
 import Navigation from '../components/Navigation';
+import Diff from '../views/test';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
               path="/contract-comparison"
               element={<ContractComparison />}
             />
+            <Route path="/test" element={<Diff />} />
           </Routes>
         </div>
       </div>

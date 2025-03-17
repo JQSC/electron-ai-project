@@ -36,6 +36,11 @@ const Navigation: React.FC = () => {
       icon: <FileTextOutlined />,
       label: '合同对比',
     },
+    {
+      key: '/test',
+      icon: <FileTextOutlined />,
+      label: '测试',
+    },
   ];
 
   const handleMenuClick = (e: { key: string }) => {

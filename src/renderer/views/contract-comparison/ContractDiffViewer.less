@@ -80,6 +80,16 @@
     &.modified-line {
       position: relative;
     }
+
+    &.diff-added {
+      background-color: rgba(82, 196, 26, 0.1);
+      border-left: 3px solid #52c41a;
+    }
+
+    &.diff-removed {
+      background-color: rgba(255, 82, 82, 0.1);
+      border-left: 3px solid #f5222d;
+    }
   }
 
   .line-number {
@@ -106,5 +116,20 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
+  }
+
+  .diff-word-added {
+    background-color: rgba(82, 196, 26, 0.2);
+    border-radius: 2px;
+    padding: 0 2px;
+    margin: 0 1px;
+  }
+
+  .diff-word-removed {
+    background-color: rgba(255, 82, 82, 0.2);
+    text-decoration: line-through;
+    border-radius: 2px;
+    padding: 0 2px;
+    margin: 0 1px;
   }
 }
