@@ -2,6 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { LLMGenerateOptions } from '../types/ipc';
+import type { User } from './services/db';
 
 export type Channels = 'ipc-example';
 
@@ -25,6 +26,9 @@ const electronHandler = {
     removeAllListeners(channel: string) {
       ipcRenderer.removeAllListeners(channel);
     },
+    invoke(channel: string, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, ...args);
+    },
   },
 };
 
@@ -32,6 +36,16 @@ const electronAPIHandler = {
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
   generate: (options: LLMGenerateOptions) =>
     ipcRenderer.invoke('llm:generate', options),
+  db: {
+    getUsers: () => ipcRenderer.invoke('db:getUsers'),
+    searchUsers: (query: Partial<User>) =>
+      ipcRenderer.invoke('db:searchUsers', query),
+    addUser: (user: Omit<User, 'id' | 'createTime'>) =>
+      ipcRenderer.invoke('db:addUser', user),
+    updateUser: (id: number, userData: Partial<User>) =>
+      ipcRenderer.invoke('db:updateUser', { id, userData }),
+    deleteUser: (id: number) => ipcRenderer.invoke('db:deleteUser', id),
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
