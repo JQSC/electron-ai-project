@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
-import { Upload, Button, Row, Col, Card, Spin, message, Tabs } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import {
+  Upload,
+  Button,
+  Row,
+  Col,
+  Card,
+  Spin,
+  message,
+  Tabs,
+  Modal,
+  Input,
+  Form,
+  Select,
+} from 'antd';
+import { InboxOutlined, SaveOutlined } from '@ant-design/icons';
 import * as Diff from 'diff';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 import ContractDiffViewer from './ContractDiffViewer';
@@ -9,6 +22,8 @@ import './index.less';
 
 const { Dragger } = Upload;
 const { TabPane } = Tabs;
+const { TextArea } = Input;
+const { Option } = Select;
 
 interface Position {
   line: number;
@@ -38,6 +53,31 @@ const ContractComparison: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   // 当前步骤：1-上传文件，2-对比结果
   const [currentStep, setCurrentStep] = useState<number>(1);
+  // 选择的文件路径
+  const [selectedFilePath, setSelectedFilePath] = useState<string>('');
+  // 保存记录模态框可见性
+  const [saveModalVisible, setSaveModalVisible] = useState<boolean>(false);
+  // 记录表单
+  const [recordForm] = Form.useForm();
+
+  /**
+   * 读取文件内容
+   *
+   * @param {File} file - 文件对象
+   * @returns {Promise<string>} 文件内容
+   */
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target) {
+          resolve(e.target.result as string);
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsText(file);
+    });
+  };
 
   /**
    * 模拟修改后的内容
@@ -119,25 +159,6 @@ const ContractComparison: React.FC = () => {
   };
 
   /**
-   * 读取文件内容
-   *
-   * @param {File} file - 文件对象
-   * @returns {Promise<string>} 文件内容
-   */
-  const readFileContent = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target) {
-          resolve(e.target.result as string);
-        }
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
-  };
-
-  /**
    * 发送文件内容到后端
    *
    * @param {string} content - 文件内容
@@ -160,7 +181,7 @@ const ContractComparison: React.FC = () => {
 
         const response = {
           content:
-            '合同编号：[2023-ABC-123]\n\n合同名称：产品销售合同\n\n甲方（卖方）：\n公司名称：XX贸易有限公司\n地址：XX市XX区XX路XX号\n法定代表人：张三\n联系电话：123-4567-8901\n营业执照编号：123456789012345678\n开户银行及账号：中国银行 XX 分行，账号 123456789012\n\n乙方（买方）：\n公司名称：YY科技有限公司\n地址：XX市XX区XX街XX号\n法定代表人：李四\n联系电话：987-6543-2109\n营业执照编号：987654321098765432\n开户银行及账号：建设银行 XX 分行，账号 987654321098\n\n签订日期：2023年10月10日\n\n签订地点：XX市XX区\n\n合同条款：\n\n1. 产品信息\n产品名称：智能手表\n型号：SW-2023\n数量：1000台\n单价：人民币1500元\n总金额：人民币1500000元（大写：壹佰伍拾万元整）\n\n2. 质量标准\n甲方保证所售产品符合国家相关质量标准（GB/T 12345-2020）。\n\n3. 交货时间与地点\n交货时间：2023年11月10日下午2点\n交货地点：乙方公司仓库（XX市XX区XX街XX号XX仓库，联系人：王五，电话：123-4567-8902）\n\n4. 付款方式\n乙方应在合同签订后3个工作日内通过银行转账方式支付30%的预付款至甲方指定账户，即人民币450000元（大写：肆拾伍万元整）。余款在交货后15个工作日内一次性付清至甲方指定账户。\n\n5. 违约责任\n甲方若未能按时交货，每逾期一日，应向乙方支付合同总金额0.5%的违约金；若因质量问题导致乙方损失，甲方应承担相应赔偿责任。\n乙方若未能按时付款，每逾期一日，应向甲方支付未付款金额0.5%的违约金；若因甲方原因导致乙方无法正常使用产品，乙方有权要求甲方承担相应责任。\n\n6. 争议解决\n本合同在履行过程中如发生争议，双方应友好协商解决。协商不成，可提交甲方所在地人民法院诉讼解决；双方也可选择提交乙方所在地人民法院诉讼解决。\n\n7. 其他条款\n本合同一式两份，甲乙双方各执一份，具有同等法律效力。\n本合同自双方签字盖章之日起生效。\n\n甲方（盖章）：XX贸易有限公司\n法定代表人签字：___________\n日期：2023年10月10日\n\n乙方（盖章）：YY科技有限公司\n法定代表人签字：___________\n日期：2023年10月10日',
+            '\n\n抖音代运营协议\n\n甲方（受托方）：宁夏xxxx科技有限公司\n\n法定代表人：王二\n\n地址：宁夏人工智能产业园二楼西侧\n\n联系方式：185xxxxxxx2\n\n乙方（委托方）：宁夏金积醋业有限公司\n\n法定代表人：徐xx\n\n地址：吴忠市金积工业园区\n\n联系方式：130xxxxxxx\n\n现甲、乙双方本着平等互利的原则，并经友好商洽，就《抖音代运营协议》的签订达成一致意见。双方约定如下：\n\n一、协议目的\n\n1.1 甲方为乙方进行抖音代运营服务。\n\n1.2 乙方同意委托甲方进行抖音店铺的代运营服务，确保乙方的抖音店铺良好运营，并取得业务发展。\n\n二、服务内容\n\n2.1 账号管理：甲方负责乙方抖音店铺的账号管理、直播运营等工作，确保账号安全及正常运营。\n\n2.2 商品上架：甲方将根据乙方提供的商品信息和图片，以及抖音平台规范要求，在规定时间内完成商品上架工作。乙方应确保提供的商品信息真实、准确、完整，并符合相关法律法规及平台要求。\n\n2.3 活动推广：甲方将根据与乙方协商结果，开展相应的推广工作以及活动申报，包括但不限于直播、推广、视频拍摄等业务。具体活动方案及预算需经乙方书面确认后方可执行。\n\n2.4 乙方产品在抖音平台销售价格由乙方决定，甲方有权提出建议。产品成本及邮费由乙方承担，具体包括：9.9元3瓶800ml陈醋或1瓶2.5L陈醋，成本价7.2元包邮（乙方承担）；39.9元1瓶2.7L 6°陈醋，成本价13.4元包邮（乙方承担）。\n\n三、服务期限\n\n3.1 本协议有效期自2022年4月1日起至2023年7月1日止。\n\n3.2 协议期届满前15日，如双方未书面提出异议，则自动续期3个月。续期期间，双方的权利义务仍按照本协议执行。\n\n四、代运营服务报酬及费用承担\n\n4.1 乙方支付给甲方的代运营服务报酬为店铺销售额的百分之十，每月结算一次，于当月30日之前结算完毕。若乙方未按约定时间支付服务报酬，则视为违约，违约金为未支付金额的10%。\n\n4.2 直播人员及短视频运营人员工资由乙方承担。直播人员工资一场为300元人民币，4小时为一场，不足4小时按4小时计算。结算以甲方提供的工资表为准，乙方有权对工资表进行审核。结算方式为日结，乙方应于每日工作结束后24小时内支付当日工资。\n\n4.3 乙方必须每日向甲方结清当日人员工资以保证推广业务正常推进，若乙方超过三个工作日未向甲方支付工资，视为乙方违约，甲方有权暂停项目，乙方需向甲方支付实际用工工资的5倍作为赔偿，直至乙方付款后项目方可再次启动。具体工资以附件为准，附件应作为本协议不可分割的一部分。\n\n4.4 推广所涉及投流费用由乙方承担，乙方需无条件配合。乙方如有异议，应提前7个工作日以书面形式告知甲方。如未提出异议中途叫停，需向甲方赔偿合同金额的30%作为违约金。若乙方投流达到27万人民币，甲方应尽合理努力保证乙方销售额可达到40万-200万人民币，但不承担最终销售额未达到该范围的违约责任，具体销售额受市场因素影响，双方应共同协商应对策略。\n\n五、知识产权保护\n\n甲方承诺，将严格按照法律法规及抖音平台规定，保护乙方知识产权，确保乙方抖音店铺的合法稳定经营。乙方应确保其提供的商品及信息不侵犯任何第三方的知识产权，否则由此产生的法律责任由乙方自行承担。\n\n六、保密条款\n\n6.1 双方应对本协议中的商业、财务、技术等涉及商业机密的信息进行绝对保密，对于泄密给对方造成的损失，由泄密方承担全部责任。保密期限为本协议生效之日起至协议终止后3年。\n\n6.2 双方应对本协议中的条款及协议签订情况保持机密，未经对方书面同意，不得向任何第三方披露。\n\n七、违约责任\n\n若一方违反本协议条款，导致对方受到损失，应承担违约责任，并对对方损失进行赔偿。违约金的具体金额根据违约情况确定，但不得低于违约行为给守约方造成的直接损失的10%。\n\n八、协议变更\n\n8.1 本协议的任何修改均需双方协商一致，并签署补充协议。补充协议应明确修改内容及生效时间。\n\n8.2 补充协议的效力与本协议相同，如补充协议与本协议内容不一致，以补充协议为准。\n\n九、协议终止\n\n9.1 本协议期满终止，双方的权利义务自然终止，但本协议第七条、第八条、第九条及保密条款继续有效。\n\n9.2 本协议在协议期内，当甲、乙双方条件变更，或申请解除本协议，必须提前1个月书面通知对方并经协商一致解除。任何一方未经协商擅自解除协议的，应向对方支付违约金，违约金金额为本协议总金额的20%。\n\n十、适用法律与争议解决\n\n10.1 本协议适用中华人民共和国法律。\n\n10.2 双方在执行本协议过程中产生的争议，应首先通过友好协商解决；协商不成的，任何一方均可向甲方所在地人民法院提起诉讼。\n\n甲方（盖章）：\n\n法定代表人或授权代表（签字）：\n\n签订日期：年____月____日\n\n乙方（盖章）：________________\n\n法定代表人或授权代表（签字）：__________________\n\n签订日期：______年____月____日',
           info: '合同主体信息不完整，质量标准条款模糊，交货时间与地点条款不明确，付款方式条款存在漏洞，违约责任条款不均衡，争议解决条款限制性较强，缺少保密条款和不可抗力条款等问题。',
           modificatorList: [
             {
@@ -231,7 +252,9 @@ const ContractComparison: React.FC = () => {
 
     try {
       // 读取上传的文件内容
-      const fileContent = await readFileContent(file);
+
+      const fileContent = await window.electronAPI.readFileContent(file.path);
+
       setOriginalContent(fileContent);
 
       // 调用后端接口获取修改后的文档内容
@@ -243,15 +266,58 @@ const ContractComparison: React.FC = () => {
       // 切换到对比结果步骤
       setCurrentStep(2);
       message.success('文档分析完成');
-    } catch (error) {
+    } catch (error: any) {
       console.error('处理文件时出错:', error);
-      message.error('处理文件时出错，请重试');
+      message.error(`处理文件时出错: ${error.message || '未知错误'}`);
     } finally {
       setLoading(false);
     }
 
     // 阻止默认上传行为
     return false;
+  };
+
+  /**
+   * 处理本地文件选择
+   */
+  const handleLocalFileSelect = async () => {
+    try {
+      // 打开文件选择对话框
+      const filePath = await window.electronAPI.openFile();
+
+      if (filePath) {
+        setSelectedFilePath(filePath);
+        setLoading(true);
+
+        try {
+          console.log('filePath', filePath);
+          // 读取文件内容
+          const fileContent =
+            await window.electronAPI.readFileContent(filePath);
+
+          console.log('fileContent', fileContent);
+          setOriginalContent(fileContent);
+
+          // 调用后端接口获取修改后的文档内容
+          const response = await sendToBackend(fileContent);
+          setModifiedContent(response.content);
+          // 使用 modificatorList 作为修改点列表
+          setModifications(response.modificatorList || []);
+
+          // 切换到对比结果步骤
+          setCurrentStep(2);
+          message.success('文档分析完成');
+        } catch (error: any) {
+          console.error('处理文件时出错:', error);
+          message.error(`处理文件时出错: ${error.message || '未知错误'}`);
+        } finally {
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error('选择文件时出错:', error);
+      message.error('选择文件时出错，请重试');
+    }
   };
 
   /**
@@ -265,27 +331,78 @@ const ContractComparison: React.FC = () => {
   };
 
   /**
+   * 打开保存记录模态框
+   */
+  const showSaveModal = () => {
+    // 提取文件名作为标题（如果有）
+    const fileName = selectedFilePath.split(/[/\\]/).pop() || '未命名合同';
+
+    recordForm.setFieldsValue({
+      title: fileName,
+      reviewer: '',
+      remarks: '',
+    });
+
+    setSaveModalVisible(true);
+  };
+
+  /**
+   * 保存合同审核记录
+   */
+  const saveContractRecord = async (values: any) => {
+    if (!originalContent || !modifiedContent) {
+      message.error('合同内容不完整，无法保存');
+      return;
+    }
+
+    try {
+      const recordData = {
+        ...values,
+        originalContent,
+        reviewedContent: modifiedContent,
+        status: 'approved', // 默认状态为已通过
+      };
+
+      const response =
+        await window.electronAPI.db.addContractRecord(recordData);
+
+      if (response.success) {
+        message.success('合同对比记录保存成功');
+        setSaveModalVisible(false);
+      } else {
+        message.error(response.error || '保存合同对比记录失败');
+      }
+    } catch (error: any) {
+      console.error('保存合同对比记录失败:', error);
+      message.error(`保存失败: ${error.message || '未知错误'}`);
+    }
+  };
+
+  /**
    * 渲染上传文件步骤
    *
    * @returns {React.ReactElement} 上传文件界面
    */
   const renderUploadStep = () => (
     <Card className="upload-card">
-      <Dragger
-        name="file"
-        multiple={false}
-        beforeUpload={handleFileUpload}
-        showUploadList={false}
-        accept=".doc,.docx,.pdf,.txt"
-      >
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-        <p className="ant-upload-hint">
-          支持 .doc, .docx, .pdf, .txt 格式的合同文件
-        </p>
-      </Dragger>
+      <div className="upload-options">
+        <Dragger
+          name="file"
+          multiple={false}
+          beforeUpload={handleFileUpload}
+          showUploadList={false}
+          accept=".doc,.docx,.pdf,.txt"
+          customRequest={() => handleLocalFileSelect()}
+        >
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+          <p className="ant-upload-hint">
+            支持 .doc, .docx, .pdf, .txt 格式的合同文件
+          </p>
+        </Dragger>
+      </div>
     </Card>
   );
 
@@ -298,9 +415,19 @@ const ContractComparison: React.FC = () => {
     <>
       <div className="comparison-header">
         <h2>合同对比结果</h2>
-        <Button type="primary" onClick={handleReupload}>
-          重新上传
-        </Button>
+        <div>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={showSaveModal}
+            style={{ marginRight: 16 }}
+          >
+            保存对比记录
+          </Button>
+          <Button type="primary" onClick={handleReupload}>
+            重新上传
+          </Button>
+        </div>
       </div>
       <Row gutter={16} className="comparison-container">
         <Col span={18}>
@@ -330,6 +457,35 @@ const ContractComparison: React.FC = () => {
       <Spin spinning={loading} tip="正在处理文档...">
         {currentStep === 1 ? renderUploadStep() : renderComparisonStep()}
       </Spin>
+
+      {/* 保存记录模态框 */}
+      <Modal
+        title="保存合同对比记录"
+        open={saveModalVisible}
+        onOk={() => recordForm.submit()}
+        onCancel={() => setSaveModalVisible(false)}
+        width={600}
+      >
+        <Form form={recordForm} layout="vertical" onFinish={saveContractRecord}>
+          <Form.Item
+            name="title"
+            label="合同标题"
+            rules={[{ required: true, message: '请输入合同标题' }]}
+          >
+            <Input placeholder="请输入合同标题" />
+          </Form.Item>
+          <Form.Item
+            name="reviewer"
+            label="审核人"
+            rules={[{ required: true, message: '请输入审核人' }]}
+          >
+            <Input placeholder="请输入审核人姓名" />
+          </Form.Item>
+          <Form.Item name="remarks" label="备注">
+            <TextArea rows={4} placeholder="请输入备注信息（可选）" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

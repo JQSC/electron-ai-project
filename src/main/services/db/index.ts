@@ -17,9 +17,23 @@ interface User {
   createTime: string;
 }
 
+// 定义合同记录结构
+interface ContractRecord {
+  id: number;
+  title: string;
+  originalContent: string;
+  reviewedContent: string;
+  reviewer: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createTime: string;
+  updateTime: string;
+  remarks?: string;
+}
+
 // 定义数据库结构
 interface Database {
   users: User[];
+  contractRecords: ContractRecord[];
 }
 
 // 初始数据
@@ -50,9 +64,10 @@ const defaultData: Database = {
       createTime: new Date().toISOString(),
     },
   ],
+  contractRecords: [],
 };
 
-// 声明DBService类型，避免"使用前定义"的错误
+// DBService类定义
 class DBService {
   private db: Low<Database>;
 
@@ -96,6 +111,12 @@ class DBService {
       // 如果数据为空，使用默认数据
       if (!this.db.data) {
         this.db.data = defaultData;
+        await this.db.write();
+      }
+
+      // 确保contractRecords字段存在
+      if (!this.db.data.contractRecords) {
+        this.db.data.contractRecords = [];
         await this.db.write();
       }
     } catch (error) {
@@ -203,7 +224,113 @@ class DBService {
 
     return true;
   }
+
+  /**
+   * 获取所有合同记录
+   * @returns 合同记录列表
+   */
+  public async getContractRecords(): Promise<ContractRecord[]> {
+    await this.db.read();
+    return this.db.data?.contractRecords || [];
+  }
+
+  /**
+   * 根据条件查询合同记录
+   * @param query 查询条件
+   * @returns 符合条件的合同记录列表
+   */
+  public async searchContractRecords(
+    query: Partial<ContractRecord>,
+  ): Promise<ContractRecord[]> {
+    await this.db.read();
+    const records = this.db.data?.contractRecords || [];
+
+    return records.filter((record) => {
+      return Object.entries(query).every(([key, value]) => {
+        if (value === undefined || value === '') return true;
+
+        const recordValue = record[key as keyof ContractRecord];
+
+        if (typeof recordValue === 'string' && typeof value === 'string') {
+          return recordValue.includes(value);
+        }
+
+        return recordValue === value;
+      });
+    });
+  }
+
+  /**
+   * 添加合同记录
+   * @param record 合同记录信息
+   * @returns 添加后的合同记录
+   */
+  public async addContractRecord(
+    record: Omit<ContractRecord, 'id' | 'createTime' | 'updateTime'>,
+  ): Promise<ContractRecord> {
+    await this.db.read();
+    const records = this.db.data?.contractRecords || [];
+
+    const now = new Date().toISOString();
+    const newRecord: ContractRecord = {
+      ...record,
+      id: records.length > 0 ? Math.max(...records.map((r) => r.id)) + 1 : 1,
+      createTime: now,
+      updateTime: now,
+    };
+
+    records.push(newRecord);
+    await this.db.write();
+
+    return newRecord;
+  }
+
+  /**
+   * 更新合同记录
+   * @param id 合同记录ID
+   * @param recordData 更新的合同记录数据
+   * @returns 更新后的合同记录
+   */
+  public async updateContractRecord(
+    id: number,
+    recordData: Partial<ContractRecord>,
+  ): Promise<ContractRecord | null> {
+    await this.db.read();
+    const records = this.db.data?.contractRecords || [];
+
+    const recordIndex = records.findIndex((record) => record.id === id);
+    if (recordIndex === -1) return null;
+
+    const updatedRecord = {
+      ...records[recordIndex],
+      ...recordData,
+      updateTime: new Date().toISOString(),
+    };
+
+    records[recordIndex] = updatedRecord;
+    await this.db.write();
+
+    return updatedRecord;
+  }
+
+  /**
+   * 删除合同记录
+   * @param id 合同记录ID
+   * @returns 是否删除成功
+   */
+  public async deleteContractRecord(id: number): Promise<boolean> {
+    await this.db.read();
+    const records = this.db.data?.contractRecords || [];
+
+    const recordIndex = records.findIndex((record) => record.id === id);
+    if (recordIndex === -1) return false;
+
+    records.splice(recordIndex, 1);
+    await this.db.write();
+
+    return true;
+  }
 }
 
 export default DBService.getInstance();
-export type { User, Database };
+export type { User, Database, ContractRecord };

@@ -9,6 +9,7 @@ import {
   UserOutlined,
   FileTextOutlined,
   BuildOutlined,
+  ProfileOutlined,
 } from '@ant-design/icons';
 
 const Navigation: React.FC = () => {
@@ -35,6 +36,11 @@ const Navigation: React.FC = () => {
       key: '/contract-comparison',
       icon: <FileTextOutlined />,
       label: '合同对比',
+    },
+    {
+      key: '/contract-records',
+      icon: <ProfileOutlined />,
+      label: '合同记录',
     },
     {
       key: '/test',

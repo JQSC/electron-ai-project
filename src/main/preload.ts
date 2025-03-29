@@ -2,7 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { LLMGenerateOptions } from '../types/ipc';
-import type { User } from './services/db';
+import type { User, ContractRecord } from './services/db';
 
 export type Channels = 'ipc-example';
 
@@ -36,6 +36,7 @@ const electronAPIHandler = {
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
   generate: (options: LLMGenerateOptions) =>
     ipcRenderer.invoke('llm:generate', options),
+  readFileContent: (filePath: string) => ipcRenderer.invoke('file:readContent', filePath),
   db: {
     getUsers: () => ipcRenderer.invoke('db:getUsers'),
     searchUsers: (query: Partial<User>) =>
@@ -45,6 +46,14 @@ const electronAPIHandler = {
     updateUser: (id: number, userData: Partial<User>) =>
       ipcRenderer.invoke('db:updateUser', { id, userData }),
     deleteUser: (id: number) => ipcRenderer.invoke('db:deleteUser', id),
+    getContractRecords: () => ipcRenderer.invoke('db:getContractRecords'),
+    searchContractRecords: (query: Partial<ContractRecord>) =>
+      ipcRenderer.invoke('db:searchContractRecords', query),
+    addContractRecord: (record: Omit<ContractRecord, 'id' | 'createTime' | 'updateTime'>) =>
+      ipcRenderer.invoke('db:addContractRecord', record),
+    updateContractRecord: (id: number, recordData: Partial<ContractRecord>) =>
+      ipcRenderer.invoke('db:updateContractRecord', { id, recordData }),
+    deleteContractRecord: (id: number) => ipcRenderer.invoke('db:deleteContractRecord', id),
   },
 };
 
